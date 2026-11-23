@@ -1,0 +1,3843 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="pure-white" data-corners="rounded" data-density="comfortable">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OPS // STUDIO — Hệ Thống Quản Lý Vận Hành Sản Xuất</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* =====================================================================
+       1. DESIGN TOKENS & 3 BẢNG MÀU MONOCHROME CAO CẤP (ADMIN TÙY CHỈNH)
+    ====================================================================== */
+    :root,
+    [data-theme="pure-white"] {
+      --bg-page: #FFFFFF;
+      --bg-card: #FFFFFF;
+      --bg-surface: #F4F4F5;
+      --bg-surface-hover: #E4E4E7;
+      --text-primary: #09090B;
+      --text-secondary: #52525B;
+      --text-muted: #71717A;
+      --border-subtle: #E4E4E7;
+      --border-strong: #18181B;
+      --accent-bg: #09090B;
+      --accent-fg: #FFFFFF;
+      --accent-hover: #27272A;
+      --shadow-card: 0 1px 2px rgba(9, 9, 11, 0.04), 0 4px 12px rgba(9, 9, 11, 0.03);
+      --shadow-elevated: 0 12px 32px rgba(9, 9, 11, 0.08);
+    }
+
+    [data-theme="warm-alabaster"] {
+      --bg-page: #FAF9F6;
+      --bg-card: #FDFCFA;
+      --bg-surface: #F2EFE9;
+      --bg-surface-hover: #E6E0D4;
+      --text-primary: #1C1917;
+      --text-secondary: #57534E;
+      --text-muted: #78716C;
+      --border-subtle: #E5DFD3;
+      --border-strong: #292524;
+      --accent-bg: #1C1917;
+      --accent-fg: #FAF9F6;
+      --accent-hover: #44403C;
+      --shadow-card: 0 1px 3px rgba(28, 25, 23, 0.04), 0 4px 14px rgba(28, 25, 23, 0.03);
+      --shadow-elevated: 0 12px 32px rgba(28, 25, 23, 0.09);
+    }
+
+    [data-theme="obsidian-dark"] {
+      --bg-page: #09090B;
+      --bg-card: #111114;
+      --bg-surface: #18181C;
+      --bg-surface-hover: #222228;
+      --text-primary: #FAFAFA;
+      --text-secondary: #A1A1AA;
+      --text-muted: #71717A;
+      --border-subtle: #27272A;
+      --border-strong: #52525B;
+      --accent-bg: #FAFAFA;
+      --accent-fg: #09090B;
+      --accent-hover: #E4E4E7;
+      --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.25);
+      --shadow-elevated: 0 16px 40px rgba(0, 0, 0, 0.55);
+    }
+
+    /* Phong cách bo góc: Mềm mại vs Swiss Sharp */
+    :root,
+    [data-corners="rounded"] {
+      --radius-card: 14px;
+      --radius-btn: 9px;
+      --radius-input: 9px;
+      --radius-pill: 9999px;
+    }
+
+    [data-corners="sharp"] {
+      --radius-card: 2px;
+      --radius-btn: 2px;
+      --radius-input: 2px;
+      --radius-pill: 2px;
+    }
+
+    /* Mật độ hiển thị bảng: Thoáng rộng vs Gọn gàng */
+    :root,
+    [data-density="comfortable"] {
+      --cell-py: 0.95rem;
+      --cell-px: 1.1rem;
+    }
+
+    [data-density="compact"] {
+      --cell-py: 0.6rem;
+      --cell-px: 0.85rem;
+    }
+
+    /* =====================================================================
+       2. CÁC LỚP TIỆN ÍCH THEME & CHUYỂN ĐỘNG MƯỢT MÀ
+    ====================================================================== */
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      transition: background-color 0.28s cubic-bezier(0.16, 1, 0.3, 1), color 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .theme-page {
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+    }
+
+    .theme-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-card);
+      box-shadow: var(--shadow-card);
+      transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .theme-card-hover:hover {
+      border-color: var(--border-strong);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-elevated);
+    }
+
+    .theme-surface {
+      background-color: var(--bg-surface);
+      border-color: var(--border-subtle);
+      transition: background-color 0.25s ease, border-color 0.25s ease;
+    }
+
+    .theme-border {
+      border-color: var(--border-subtle);
+    }
+
+    .theme-border-strong {
+      border-color: var(--border-strong);
+    }
+
+    .theme-text-secondary {
+      color: var(--text-secondary);
+    }
+
+    .theme-text-muted {
+      color: var(--text-muted);
+    }
+
+    .btn-primary {
+      background-color: var(--accent-bg);
+      color: var(--accent-fg);
+      border: 1px solid var(--accent-bg);
+      border-radius: var(--radius-btn);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-primary:hover {
+      background-color: var(--accent-hover);
+      border-color: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background-color: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-btn);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-secondary:hover {
+      background-color: var(--bg-surface);
+      border-color: var(--border-strong);
+    }
+
+    .input-field {
+      background-color: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-input);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+    .input-field:focus {
+      outline: none;
+      border-color: var(--border-strong);
+      box-shadow: 0 0 0 3px rgba(128, 128, 128, 0.14);
+    }
+
+    .pill-badge {
+      border-radius: var(--radius-pill);
+    }
+
+    .table-cell-pad {
+      padding: var(--cell-py) var(--cell-px);
+    }
+
+    /* Thanh cuộn tối giản mảnh mai */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-surface);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-strong);
+      border-radius: 999px;
+    }
+
+    /* Hiệu ứng chuyển cảnh mượt mà */
+    @keyframes tabEnter {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .animate-tab {
+      animation: tabEnter 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes modalScaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.97) translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+    .animate-modal {
+      animation: modalScaleIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Bộ lọc ảnh chân dung monochrome studio */
+    .portrait-mono {
+      filter: grayscale(100%) contrast(1.08);
+      transition: filter 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .group:hover .portrait-mono {
+      filter: grayscale(40%) contrast(1.04);
+      transform: scale(1.04);
+    }
+    .portrait-color {
+      filter: none;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .group:hover .portrait-color {
+      transform: scale(1.04);
+    }
+  </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col selection:bg-zinc-900 selection:text-white">
+
+  <!-- =====================================================================
+       1. TOP HEADER BAR: THƯƠNG HIỆU, BỘ CHUYỂN ĐỔI VAI TRÒ & QUYỀN HẠN
+  ====================================================================== -->
+  <header class="sticky top-0 z-30 border-b theme-border backdrop-blur-md" style="background-color: color-mix(in srgb, var(--bg-page) 92%, transparent);">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5">
+      
+      <!-- Brand Identity (Render động theo cấu hình Admin) -->
+      <div id="brand-header-slot" class="flex items-center justify-between gap-3">
+        <!-- Render động bằng JS -->
+      </div>
+
+      <!-- Bộ chuyển đổi vai trò & Tác vụ nhanh -->
+      <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
+        
+        <!-- Nút nhanh Tùy chỉnh Thương hiệu & UI (Chỉ hiển thị với ADMIN) -->
+        <button
+          id="btn-quick-brand-ui"
+          onclick="jumpToBrandCustomization()"
+          class="hidden items-center gap-1.5 px-3 py-2 text-xs font-semibold btn-secondary cursor-pointer"
+          title="Chỉnh sửa Tên thương hiệu, Logo & Giao diện Web"
+        >
+          <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i>
+          <span>Tùy chỉnh Thương hiệu &amp; UI</span>
+        </button>
+
+        <!-- Công tắc chuyển đổi vai trò: [VAI TRÒ: ADMIN] <-> [VAI TRÒ: NHÂN VIÊN] -->
+        <div class="flex items-center p-1 border theme-border theme-surface pill-badge w-full sm:w-auto justify-between sm:justify-start" role="group" aria-label="Chuyển đổi vai trò người dùng">
+          <button
+            id="btn-role-admin"
+            onclick="switchRole('ADMIN')"
+            class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 text-xs font-mono font-bold pill-badge transition-all cursor-pointer"
+          >
+            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+            <span>VAI TRÒ: ADMIN</span>
+          </button>
+          
+          <button
+            id="btn-role-staff"
+            onclick="switchRole('STAFF')"
+            class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 text-xs font-mono font-bold pill-badge transition-all cursor-pointer"
+          >
+            <i data-lucide="user" class="w-3.5 h-3.5"></i>
+            <span>VAI TRÒ: NHÂN VIÊN</span>
+          </button>
+        </div>
+
+        <!-- Bộ chọn tài khoản nhân viên đang đăng nhập (Khi ở chế độ Nhân viên) -->
+        <div id="staff-identity-box" class="hidden items-center gap-2 border theme-border theme-card px-2.5 py-1.5 text-xs w-full sm:w-auto" style="border-radius: var(--radius-btn);">
+          <img id="active-staff-mini-avatar" src="" alt="" class="w-5 h-5 rounded-full object-cover border theme-border" />
+          <span class="font-mono text-[11px] uppercase theme-text-muted font-semibold">Tài khoản:</span>
+          <select 
+            id="active-staff-select" 
+            onchange="changeActiveStaff(this.value)"
+            class="font-semibold text-xs bg-transparent focus:outline-none cursor-pointer pr-1 flex-1"
+          ></select>
+        </div>
+
+        <!-- Nút Khôi phục dữ liệu mẫu -->
+        <button 
+          onclick="confirmResetData()"
+          class="hidden xl:inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium btn-secondary cursor-pointer"
+          title="Đưa toàn bộ dữ liệu về mặc định ban đầu"
+        >
+          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+          <span>Dữ liệu mẫu</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Dải thông báo chính sách phân quyền hiện hành -->
+    <div id="role-policy-banner" class="border-t theme-border transition-colors">
+      <!-- Render động bằng JS -->
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       2. MAIN WORKSPACE CONTAINER
+  ====================================================================== -->
+  <main class="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    
+    <!-- Lưới 4 chỉ số tổng quan (KPI Overview Strip) -->
+    <section id="kpi-strip" class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 mb-7">
+      <!-- Render động bằng JS -->
+    </section>
+
+    <!-- Thanh điều hướng 4 Tab phân hệ rõ ràng -->
+    <nav class="border-b theme-border mb-6 overflow-x-auto" aria-label="Phân hệ quản lý vận hành">
+      <div id="tab-bar" class="flex items-stretch min-w-max gap-1.5">
+        <!-- Render động bằng JS -->
+      </div>
+    </nav>
+
+    <!-- Không gian làm việc chính (Chuyển tab mượt mà) -->
+    <section id="workspace-container" class="animate-tab">
+      <!-- Render động bằng JS -->
+    </section>
+
+  </main>
+
+  <!-- =====================================================================
+       3. FOOTER TỐI GIẢN
+  ====================================================================== -->
+  <footer class="border-t theme-border theme-surface mt-14">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs theme-text-secondary">
+      <div id="footer-brand-text" class="font-mono font-medium">
+        OPS // STUDIO — MONOCHROME PRODUCTION OPERATIONS SYSTEM
+      </div>
+      <div class="flex items-center gap-3">
+        <span>Lưu trữ cục bộ tự động (<span class="font-mono font-semibold">localStorage</span>)</span>
+        <button onclick="confirmResetData()" class="underline hover:opacity-80 cursor-pointer xl:hidden">Khôi phục mẫu</button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =====================================================================
+       4. HỆ THỐNG MODAL TƯƠNG TÁC MƯỢT MÀ (KHÔNG DÙNG ALERT / CONFIRM)
+  ====================================================================== -->
+  <div 
+    id="modal-backdrop" 
+    class="fixed inset-0 z-50 hidden bg-black/55 backdrop-blur-[2px] flex items-center justify-center p-4 overflow-y-auto transition-opacity"
+    onclick="handleBackdropClick(event)"
+  >
+    <div 
+      id="modal-panel" 
+      class="theme-card border theme-border-strong w-full max-w-2xl shadow-2xl overflow-hidden my-auto animate-modal"
+      onclick="event.stopPropagation()"
+    >
+      <!-- Nội dung Modal render động -->
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       5. HỆ THỐNG THÔNG BÁO TOAST NỔI MƯỢT MÀ
+  ====================================================================== -->
+  <div 
+    id="toast-container" 
+    class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none px-4 sm:px-0"
+  ></div>
+
+  <!-- =====================================================================
+       6. JAVASCRIPT APPLICATION ENGINE
+  ====================================================================== -->
+  <script>
+    const STORAGE_KEY = 'ops_studio_monochrome_v2';
+
+    /**
+     * BỘ 6 BIỂU TƯỢNG LOGO HÌNH HỌC TỐI GIẢN CHO ADMIN LỰA CHỌN
+     */
+    const LOGO_ICONS = [
+      { id: 'aperture', name: 'Ống kính (Aperture)', icon: 'aperture' },
+      { id: 'layers', name: 'Lớp dữ liệu (Layers)', icon: 'layers' },
+      { id: 'box', name: 'Khối lập phương (Cube)', icon: 'box' },
+      { id: 'crosshair', name: 'Tâm ngắm (Crosshair)', icon: 'crosshair' },
+      { id: 'hexagon', name: 'Lục giác (Hexagon)', icon: 'hexagon' },
+      { id: 'film', name: 'Thước phim (Film)', icon: 'film' }
+    ];
+
+    /**
+     * BỘ ẢNH CHÂN DUNG STUDIO MẪU CHẤT LƯỢNG CAO (CÓ FALLBACK TỰ ĐỘNG)
+     */
+    const PRESET_PORTRAITS = [
+      {
+        label: 'Chân dung Nam 01',
+        url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80'
+      },
+      {
+        label: 'Chân dung Nam 02',
+        url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80'
+      },
+      {
+        label: 'Chân dung Nam 03',
+        url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80'
+      },
+      {
+        label: 'Chân dung Nữ 01',
+        url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80'
+      },
+      {
+        label: 'Chân dung Nam 04',
+        url: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80'
+      },
+      {
+        label: 'Chân dung Nữ 02',
+        url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80'
+      }
+    ];
+
+    /**
+     * DỮ LIỆU KHỞI TẠO MẶC ĐỊNH
+     */
+    const DEFAULT_DATA = {
+      role: 'ADMIN', // 'ADMIN' | 'STAFF'
+      activeStaffId: 'NV-02',
+      activeTab: 'staff', // 'staff' | 'schedule' | 'files' | 'structure'
+      staffViewMode: 'grid', // 'grid' | 'table'
+      scheduleViewMode: 'table', // 'table' | 'timeline'
+
+      // Cấu hình Thương hiệu & Giao diện (CHỈ ADMIN ĐƯỢC CHỈNH SỬA)
+      branding: {
+        brandName: 'OPS // STUDIO',
+        tagline: 'Hệ thống Quản lý Nhân sự, Lịch làm việc & Dữ liệu Sản xuất',
+        versionTag: 'v3.0',
+        logoType: 'icon', // 'icon' | 'upload'
+        logoIcon: 'aperture',
+        logoImageUrl: '',
+        theme: 'pure-white', // 'pure-white' | 'warm-alabaster' | 'obsidian-dark'
+        corners: 'rounded', // 'rounded' | 'sharp'
+        density: 'comfortable', // 'comfortable' | 'compact'
+        monoAvatars: true
+      },
+
+      fileCategories: [
+        'Source RAW',
+        'Project Dựng',
+        'Bản Master',
+        'Thiết kế ấn phẩm',
+        'Audio & Mixing',
+        'Kịch bản / Callsheet'
+      ],
+
+      projects: [
+        'PRJ-2601 • TVC Tết Bính Ngọ — VinFast Green',
+        'PRJ-2602 • Livestream Tech Summit Hà Nội 2026',
+        'PRJ-2603 • Lookbook Thu Đông — Noir Atelier',
+        'PRJ-2604 • Phim Tài Liệu — Viettel Post'
+      ],
+
+      customFields: {
+        staff: [
+          {
+            id: 'cf_staff_cert',
+            label: 'Chứng chỉ / Hạng thẻ',
+            type: 'text',
+            options: [],
+            required: false
+          }
+        ],
+        schedule: [
+          {
+            id: 'cf_sched_equip',
+            label: 'Thiết bị bàn giao',
+            type: 'text',
+            options: [],
+            required: false
+          },
+          {
+            id: 'cf_sched_dress',
+            label: 'Trang phục yêu cầu',
+            type: 'select',
+            options: ['Đồng phục đen Studio', 'Trang phục lịch sự', 'Bảo hộ hiện trường'],
+            required: false
+          }
+        ],
+        files: [
+          {
+            id: 'cf_file_spec',
+            label: 'Định dạng & Dung lượng',
+            type: 'text',
+            options: [],
+            required: false
+          },
+          {
+            id: 'cf_file_review',
+            label: 'Trạng thái duyệt',
+            type: 'select',
+            options: ['Chờ duyệt', 'Đã duyệt Master', 'Cần chỉnh sửa'],
+            required: false
+          }
+        ]
+      },
+
+      staff: [
+        {
+          id: 'NV-01',
+          name: 'Nguyễn Hải Đăng',
+          position: 'Đạo diễn Hình ảnh (DOP)',
+          specialty: 'Đạo diễn hình ảnh',
+          status: 'Đang đi job',
+          gear: 'Sony FX6 + G-Master 24-70mm II',
+          phone: '0904 112 889',
+          email: 'dang.nh@ops-studio.vn',
+          avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+          customValues: {
+            cf_staff_cert: 'Chứng chỉ Steadicam & Ánh sáng Điện ảnh'
+          }
+        },
+        {
+          id: 'NV-02',
+          name: 'Trần Minh Quân',
+          position: 'Lead Editor & Colorist',
+          specialty: 'Dựng phim / Colorist',
+          status: 'Sẵn sàng',
+          gear: 'Mac Studio M2 Ultra + Màn hình Eizo CG2700X',
+          phone: '0912 334 556',
+          email: 'quan.tm@ops-studio.vn',
+          avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
+          customValues: {
+            cf_staff_cert: 'DaVinci Resolve Certified Colorist'
+          }
+        },
+        {
+          id: 'NV-03',
+          name: 'Lê Hoàng Nam',
+          position: 'Quay phim & Điều khiển Flycam',
+          specialty: 'Quay phim',
+          status: 'Đang đi job',
+          gear: 'DJI Inspire 3 + Gimbal RS4 Pro',
+          phone: '0988 771 204',
+          email: 'nam.lh@ops-studio.vn',
+          avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80',
+          customValues: {
+            cf_staff_cert: 'Giấy phép bay UAV Cục Tác Chiến'
+          }
+        },
+        {
+          id: 'NV-04',
+          name: 'Phạm Thảo Vy',
+          position: 'Art Director & Key Visual',
+          specialty: 'Nhiếp ảnh & Thiết kế',
+          status: 'Sẵn sàng',
+          gear: 'Hasselblad X2D 100C + Wacom Cintiq Pro 24',
+          phone: '0936 509 112',
+          email: 'vy.pt@ops-studio.vn',
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+          customValues: {
+            cf_staff_cert: 'Giám đốc Nghệ thuật Chiến dịch'
+          }
+        },
+        {
+          id: 'NV-05',
+          name: 'Đỗ Quốc Bảo',
+          position: 'Kỹ sư Âm thanh & Mixing',
+          specialty: 'Âm thanh hiện trường',
+          status: 'Sẵn sàng',
+          gear: 'Sound Devices MixPre-6 II + Sennheiser MKH416',
+          phone: '0977 882 310',
+          email: 'bao.dq@ops-studio.vn',
+          avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80',
+          customValues: {
+            cf_staff_cert: 'Chuẩn âm thanh phát sóng -14 LUFS'
+          }
+        },
+        {
+          id: 'NV-06',
+          name: 'Vũ Ngọc Ánh',
+          position: 'Điều phối Sản xuất (Line Producer)',
+          specialty: 'Điều phối sản xuất',
+          status: 'Nghỉ phép',
+          gear: 'Bộ đàm Motorola x6 + iPad Pro Callsheet',
+          phone: '0909 661 445',
+          email: 'anh.vn@ops-studio.vn',
+          avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80',
+          customValues: {
+            cf_staff_cert: 'Quản lý Ngân sách & Hiện trường'
+          }
+        }
+      ],
+
+      schedules: [
+        {
+          id: 'SCH-101',
+          date: '2026-11-24',
+          shift: 'Ca Sáng (07:30 - 12:00)',
+          project: 'PRJ-2601 • TVC Tết Bính Ngọ — VinFast Green',
+          task: 'Quay ngoại cảnh phân đoạn lái thử & Flycam toàn cảnh',
+          staffId: 'NV-01',
+          location: 'Khu đô thị Vinhomes Ocean Park, Hà Nội',
+          status: 'Đang thực hiện',
+          customValues: {
+            cf_sched_equip: 'Vali FX6 #01, Đèn Aputure 600d Pro',
+            cf_sched_dress: 'Đồng phục đen Studio'
+          }
+        },
+        {
+          id: 'SCH-102',
+          date: '2026-11-24',
+          shift: 'Ca Chiều (13:30 - 18:30)',
+          project: 'PRJ-2601 • TVC Tết Bính Ngọ — VinFast Green',
+          task: 'Dựng Offline Rough Cut V1 & đồng bộ âm thanh hiện trường',
+          staffId: 'NV-02',
+          location: 'Phòng Dựng A — Trụ sở Studio',
+          status: 'Sắp diễn ra',
+          customValues: {
+            cf_sched_equip: 'Ổ cứng RAID NAS 40TB Slot 2',
+            cf_sched_dress: 'Trang phục lịch sự'
+          }
+        },
+        {
+          id: 'SCH-103',
+          date: '2026-11-24',
+          shift: 'Full-day (08:00 - 17:30)',
+          project: 'PRJ-2602 • Livestream Tech Summit Hà Nội 2026',
+          task: 'Setup 4 góc máy quay sân khấu chính & kiểm tra tín hiệu SDI',
+          staffId: 'NV-03',
+          location: 'Trung tâm Hội nghị Quốc gia (NCC)',
+          status: 'Đang thực hiện',
+          customValues: {
+            cf_sched_equip: 'Bàn trộn ATEM Mini Extreme ISO + 4 Cam',
+            cf_sched_dress: 'Đồng phục đen Studio'
+          }
+        },
+        {
+          id: 'SCH-104',
+          date: '2026-11-25',
+          shift: 'Ca Sáng (09:00 - 12:30)',
+          project: 'PRJ-2603 • Lookbook Thu Đông — Noir Atelier',
+          task: 'Chụp Lookbook Studio ánh sáng đơn sắc & Key Visual ấn phẩm',
+          staffId: 'NV-04',
+          location: 'Phòng Studio Cyclorama — Tầng 3',
+          status: 'Sắp diễn ra',
+          customValues: {
+            cf_sched_equip: 'Hasselblad X2D + Bộ đèn Profoto Pro-11',
+            cf_sched_dress: 'Đồng phục đen Studio'
+          }
+        },
+        {
+          id: 'SCH-105',
+          date: '2026-11-25',
+          shift: 'Ca Chiều (14:00 - 18:00)',
+          project: 'PRJ-2604 • Phim Tài Liệu — Viettel Post',
+          task: 'Thu âm Voice-over thuyết minh & thiết kế SFX không gian kho vận',
+          staffId: 'NV-05',
+          location: 'Phòng Thu Âm Cách Âm B1',
+          status: 'Hoàn thành',
+          customValues: {
+            cf_sched_equip: 'Mic Neumann U87 Ai + MixPre-6',
+            cf_sched_dress: 'Trang phục lịch sự'
+          }
+        }
+      ],
+
+      files: [
+        {
+          id: 'FILE-001',
+          name: 'VF_Tet2026_Scene01_to_08_A001_RAW.zip',
+          project: 'PRJ-2601 • TVC Tết Bính Ngọ — VinFast Green',
+          category: 'Source RAW',
+          version: 'v1.0',
+          url: 'https://drive.google.com/drive/folders/raw-vf-tet2026-a001',
+          updatedBy: 'Nguyễn Hải Đăng',
+          updatedAt: '2026-11-24 11:40',
+          locked: true,
+          notes: 'Thẻ quay gốc A001 chuẩn S-Log3 4K 120fps. Admin đã khóa chống ghi đè.',
+          customValues: {
+            cf_file_spec: 'MXF / 148.5 GB',
+            cf_file_review: 'Đã duyệt Master'
+          },
+          history: [
+            {
+              version: 'v1.0',
+              updatedBy: 'Nguyễn Hải Đăng',
+              updatedAt: '2026-11-24 11:40',
+              note: 'Tải lên gói dữ liệu gốc thẻ A001 sau ca quay sáng.',
+              url: 'https://drive.google.com/drive/folders/raw-vf-tet2026-a001'
+            }
+          ]
+        },
+        {
+          id: 'FILE-002',
+          name: 'VF_Tet2026_TVC30s_EditTimeline.prproj',
+          project: 'PRJ-2601 • TVC Tết Bính Ngọ — VinFast Green',
+          category: 'Project Dựng',
+          version: 'v2.1',
+          url: 'https://drive.google.com/file/d/vf-tet2026-roughcut-v2-1',
+          updatedBy: 'Trần Minh Quân',
+          updatedAt: '2026-11-24 14:15',
+          locked: false,
+          notes: 'Đã cắt gọn nhịp 30s theo feedback đạo diễn, chèn tạm nhạc nền guide.',
+          customValues: {
+            cf_file_spec: 'PRPROJ + Proxy / 4.2 GB',
+            cf_file_review: 'Chờ duyệt'
+          },
+          history: [
+            {
+              version: 'v1.0',
+              updatedBy: 'Trần Minh Quân',
+              updatedAt: '2026-11-23 19:20',
+              note: 'Bản dựng nháp đầu tiên (Assembly Cut 45s).',
+              url: 'https://drive.google.com/file/d/vf-tet2026-roughcut-v1'
+            },
+            {
+              version: 'v2.0',
+              updatedBy: 'Trần Minh Quân',
+              updatedAt: '2026-11-24 09:30',
+              note: 'Rút gọn thời lượng xuống đúng 30s theo kịch bản.',
+              url: 'https://drive.google.com/file/d/vf-tet2026-roughcut-v2'
+            },
+            {
+              version: 'v2.1',
+              updatedBy: 'Trần Minh Quân',
+              updatedAt: '2026-11-24 14:15',
+              note: 'Đã cắt gọn nhịp 30s theo feedback đạo diễn, chèn tạm nhạc nền guide.',
+              url: 'https://drive.google.com/file/d/vf-tet2026-roughcut-v2-1'
+            }
+          ]
+        },
+        {
+          id: 'FILE-003',
+          name: 'NoirAtelier_Lookbook_KeyVisual_Master.ai',
+          project: 'PRJ-2603 • Lookbook Thu Đông — Noir Atelier',
+          category: 'Thiết kế ấn phẩm',
+          version: 'v3.0',
+          url: 'https://drive.google.com/file/d/noir-atelier-kv-v3',
+          updatedBy: 'Phạm Thảo Vy',
+          updatedAt: '2026-11-23 17:50',
+          locked: false,
+          notes: 'Chốt bố cục lưới Swiss Grid đen trắng, xuất kèm bộ font và file in ấn CMYK.',
+          customValues: {
+            cf_file_spec: 'AI + PDF Print / 1.8 GB',
+            cf_file_review: 'Đã duyệt Master'
+          },
+          history: [
+            {
+              version: 'v1.0',
+              updatedBy: 'Phạm Thảo Vy',
+              updatedAt: '2026-11-21 15:00',
+              note: 'Concept layout đề xuất ban đầu.',
+              url: 'https://drive.google.com/file/d/noir-atelier-kv-v1'
+            },
+            {
+              version: 'v3.0',
+              updatedBy: 'Phạm Thảo Vy',
+              updatedAt: '2026-11-23 17:50',
+              note: 'Chốt bố cục lưới Swiss Grid đen trắng, xuất kèm bộ font và file in ấn CMYK.',
+              url: 'https://drive.google.com/file/d/noir-atelier-kv-v3'
+            }
+          ]
+        },
+        {
+          id: 'FILE-004',
+          name: 'TechSummit2026_Stage_Audio_StemMix.wav',
+          project: 'PRJ-2602 • Livestream Tech Summit Hà Nội 2026',
+          category: 'Audio & Mixing',
+          version: 'v1.2',
+          url: 'https://drive.google.com/file/d/techsummit-audio-stem-v1-2',
+          updatedBy: 'Đỗ Quốc Bảo',
+          updatedAt: '2026-11-24 10:05',
+          locked: false,
+          notes: 'Đã khử nhiễu nền micro diễn giả và chuẩn hóa mức âm lượng -14 LUFS cho Livestream.',
+          customValues: {
+            cf_file_spec: 'WAV 24-bit 48kHz / 680 MB',
+            cf_file_review: 'Cần chỉnh sửa'
+          },
+          history: [
+            {
+              version: 'v1.0',
+              updatedBy: 'Đỗ Quốc Bảo',
+              updatedAt: '2026-11-23 21:10',
+              note: 'Bản thu âm thanh kiểm tra hệ thống PA.',
+              url: 'https://drive.google.com/file/d/techsummit-audio-stem-v1'
+            },
+            {
+              version: 'v1.2',
+              updatedBy: 'Đỗ Quốc Bảo',
+              updatedAt: '2026-11-24 10:05',
+              note: 'Đã khử nhiễu nền micro diễn giả và chuẩn hóa mức âm lượng -14 LUFS cho Livestream.',
+              url: 'https://drive.google.com/file/d/techsummit-audio-stem-v1-2'
+            }
+          ]
+        }
+      ]
+    };
+
+    const filters = {
+      staffSearch: '',
+      staffSpecialty: 'ALL',
+      staffStatus: 'ALL',
+      scheduleSearch: '',
+      scheduleStaffId: 'ALL',
+      scheduleStatus: 'ALL',
+      myScheduleOnly: false,
+      fileSearch: '',
+      fileCategory: 'ALL',
+      fileProject: 'ALL'
+    };
+
+    /**
+     * KHỞI TẠO VÀ LƯU TRỮ STATE
+     */
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          return {
+            ...structuredClone(DEFAULT_DATA),
+            ...parsed,
+            branding: {
+              ...structuredClone(DEFAULT_DATA.branding),
+              ...(parsed.branding || {})
+            },
+            customFields: {
+              ...structuredClone(DEFAULT_DATA.customFields),
+              ...(parsed.customFields || {})
+            }
+          };
+        }
+      } catch (err) {
+        console.error('Lỗi đọc dữ liệu localStorage:', err);
+      }
+      return structuredClone(DEFAULT_DATA);
+    }
+
+    let state = loadState();
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (err) {
+        showToast('CẢNH BÁO BỘ NHỚ', 'Dung lượng ảnh quá lớn vượt giới hạn trình duyệt. Vui lòng chọn ảnh nhẹ hơn.');
+      }
+    }
+
+    /**
+     * ÁP DỤNG CẤU HÌNH GIAO DIỆN DO ADMIN THIẾT LẬP LÊN THẺ <HTML>
+     */
+    function applyThemeAttributes() {
+      const html = document.documentElement;
+      const b = state.branding;
+      html.setAttribute('data-theme', b.theme || 'pure-white');
+      html.setAttribute('data-corners', b.corners || 'rounded');
+      html.setAttribute('data-density', b.density || 'comfortable');
+      document.title = `${b.brandName} — ${b.tagline}`;
+    }
+
+    /**
+     * TIỆN ÍCH CHUNG
+     */
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function isAdmin() {
+      return state.role === 'ADMIN';
+    }
+
+    function getCurrentTimestamp() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      const hh = String(now.getHours()).padStart(2, '0');
+      const min = String(now.getMinutes()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+    }
+
+    function getCurrentActorName() {
+      if (isAdmin()) return 'Quản trị viên (Admin)';
+      const staff = state.staff.find(s => s.id === state.activeStaffId);
+      return staff ? staff.name : 'Nhân viên Studio';
+    }
+
+    function getFallbackAvatarUrl(name) {
+      const initials = (name || 'NV')
+        .split(' ')
+        .slice(-2)
+        .map(w => w[0] || '')
+        .join('')
+        .toUpperCase();
+      return `https://placehold.co/320x320/18181b/ffffff?text=${encodeURIComponent(initials || 'NV')}`;
+    }
+
+    function getStaffByName(name) {
+      return state.staff.find(s => s.name === name);
+    }
+
+    /**
+     * NÉN ẢNH UPLOAD QUA CANVAS ĐỂ TỐI ƯU TỐC ĐỘ & LOCALSTORAGE
+     */
+    function compressImageFile(file, maxSize = 360) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > maxSize) {
+                height = Math.round((height * maxSize) / width);
+                width = maxSize;
+              }
+            } else {
+              if (height > maxSize) {
+                width = Math.round((width * maxSize) / height);
+                height = maxSize;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.85));
+          };
+          img.onerror = reject;
+          img.src = event.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    /**
+     * HỆ THỐNG THÔNG BÁO TOAST
+     */
+    function showToast(title, message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'pointer-events-auto border theme-border-strong p-3.5 shadow-xl flex items-start justify-between gap-3 animate-modal';
+      toast.style.backgroundColor = 'var(--accent-bg)';
+      toast.style.color = 'var(--accent-fg)';
+      toast.style.borderRadius = 'var(--radius-btn)';
+
+      const timeStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      toast.innerHTML = `
+        <div class="space-y-0.5">
+          <div class="flex items-center gap-2">
+            <span class="inline-block w-2 h-2 rounded-full" style="background-color: var(--accent-fg);"></span>
+            <span class="font-mono text-[11px] font-bold tracking-wider uppercase">${escapeHtml(title)}</span>
+            <span class="font-mono text-[10px] opacity-60">${timeStr}</span>
+          </div>
+          <p class="text-xs opacity-90 leading-relaxed pl-4">${escapeHtml(message)}</p>
+        </div>
+        <button onclick="this.parentElement.remove()" class="opacity-60 hover:opacity-100 text-xs font-mono px-1 cursor-pointer" aria-label="Đóng">✕</button>
+      `;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        if (toast.parentElement) {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateY(6px)';
+          toast.style.transition = 'all 0.22s ease';
+          setTimeout(() => toast.remove(), 220);
+        }
+      }, 3600);
+    }
+
+    /**
+     * HỆ THỐNG MODAL TÙY BIẾN
+     */
+    function openModal(htmlContent, maxWidthClass = 'max-w-2xl') {
+      const backdrop = document.getElementById('modal-backdrop');
+      const panel = document.getElementById('modal-panel');
+      panel.className = `theme-card border theme-border-strong w-full ${maxWidthClass} shadow-2xl overflow-hidden my-auto animate-modal`;
+      panel.innerHTML = htmlContent;
+      backdrop.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeModal() {
+      const backdrop = document.getElementById('modal-backdrop');
+      backdrop.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    function handleBackdropClick(e) {
+      if (e.target.id === 'modal-backdrop') closeModal();
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    /**
+     * CHUYỂN ĐỔI VAI TRÒ & ĐIỀU HƯỚNG TAB
+     */
+    function switchRole(newRole) {
+      if (state.role === newRole) return;
+      state.role = newRole;
+
+      if (newRole === 'STAFF' && state.activeTab === 'structure') {
+        state.activeTab = 'files';
+      }
+      if (newRole === 'ADMIN') {
+        filters.myScheduleOnly = false;
+      }
+
+      saveState();
+      renderApp();
+
+      if (newRole === 'ADMIN') {
+        showToast('VAI TRÒ: ADMIN', 'Đã mở khóa toàn quyền cấu trúc dữ liệu, tùy chỉnh thương hiệu & giao diện.');
+      } else {
+        showToast('VAI TRÒ: NHÂN VIÊN', 'Chế độ Nhân viên: Chỉ xem nhân sự/lịch và chỉ được Thêm / Sửa file mở khóa.');
+      }
+    }
+
+    function changeActiveStaff(staffId) {
+      state.activeStaffId = staffId;
+      saveState();
+      renderApp();
+      const staff = state.staff.find(s => s.id === staffId);
+      if (staff) {
+        showToast('ĐỔI TÀI KHOẢN NHÂN VIÊN', `Đang thao tác dưới tên: ${staff.name} (${staff.specialty})`);
+      }
+    }
+
+    function switchTab(tabKey) {
+      if (tabKey === 'structure' && !isAdmin()) {
+        showToast('TỪ CHỐI TRUY CẬP', 'Chỉ Admin mới có quyền truy cập Cấu trúc & Giao diện.');
+        return;
+      }
+      state.activeTab = tabKey;
+      saveState();
+      renderApp();
+    }
+
+    function jumpToBrandCustomization() {
+      if (!isAdmin()) return;
+      state.activeTab = 'structure';
+      saveState();
+      renderApp();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast('TÙY CHỈNH THƯƠNG HIỆU & UI', 'Đang mở khu vực thiết lập Logo, Tên trang web và Bảng màu.');
+    }
+
+    function confirmResetData() {
+      openModal(`
+        <div class="p-6">
+          <div class="flex items-center justify-between border-b theme-border pb-3 mb-4">
+            <h3 class="font-bold text-base uppercase tracking-tight">Khôi phục dữ liệu &amp; giao diện mẫu</h3>
+            <button onclick="closeModal()" class="font-mono text-xs px-2 py-1 btn-secondary cursor-pointer">ESC</button>
+          </div>
+          <p class="text-xs theme-text-secondary leading-relaxed mb-6">
+            Toàn bộ dữ liệu nhân sự, ảnh chân dung, lịch phân công, file sản xuất và cấu hình giao diện hiện tại sẽ trở về trạng thái mặc định ban đầu. Bạn chắc chắn muốn thực hiện?
+          </p>
+          <div class="flex items-center justify-end gap-2.5">
+            <button onclick="closeModal()" class="px-4 py-2 text-xs font-semibold btn-secondary cursor-pointer">Hủy bỏ</button>
+            <button onclick="executeResetData()" class="px-4 py-2 text-xs font-semibold btn-primary cursor-pointer">Đồng ý khôi phục</button>
+          </div>
+        </div>
+      `, 'max-w-md');
+    }
+
+    function executeResetData() {
+      localStorage.removeItem(STORAGE_KEY);
+      state = structuredClone(DEFAULT_DATA);
+      saveState();
+      closeModal();
+      renderApp();
+      showToast('ĐÃ KHÔI PHỤC MẶC ĐỊNH', 'Hệ thống đã tải lại toàn bộ dữ liệu mẫu tiêu chuẩn.');
+    }
+
+    /**
+     * RENDER HEADER, THƯƠNG HIỆU, BANNER PHÂN QUYỀN, KPI & TABS
+     */
+    function renderHeaderControls() {
+      const b = state.branding;
+      const brandSlot = document.getElementById('brand-header-slot');
+      const footerBrand = document.getElementById('footer-brand-text');
+
+      const logoVisual =
+        b.logoType === 'upload' && b.logoImageUrl
+          ? `<img src="${escapeHtml(b.logoImageUrl)}" alt="${escapeHtml(b.brandName)}" class="w-10 h-10 object-cover border theme-border-strong shrink-0" style="border-radius: var(--radius-btn);" />`
+          : `<div class="w-10 h-10 flex items-center justify-center shrink-0" style="background-color: var(--accent-bg); color: var(--accent-fg); border-radius: var(--radius-btn);">
+               <i data-lucide="${escapeHtml(b.logoIcon || 'aperture')}" class="w-5 h-5"></i>
+             </div>`;
+
+      brandSlot.innerHTML = `
+        <div class="flex items-center gap-3.5">
+          ${logoVisual}
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="font-extrabold text-base sm:text-lg tracking-tight uppercase leading-none">
+                ${escapeHtml(b.brandName)}
+              </h1>
+              <span class="font-mono text-[11px] px-1.5 py-0.5 border theme-border theme-surface font-semibold" style="border-radius: var(--radius-btn);">
+                ${escapeHtml(b.versionTag || 'v3.0')}
+              </span>
+            </div>
+            <p class="text-xs theme-text-secondary mt-1 line-clamp-1">
+              ${escapeHtml(b.tagline)}
+            </p>
+          </div>
+        </div>
+      `;
+
+      if (footerBrand) {
+        footerBrand.textContent = `${b.brandName} — MONOCHROME PRODUCTION OPERATIONS SYSTEM`;
+      }
+
+      const btnQuickBrand = document.getElementById('btn-quick-brand-ui');
+      const btnAdmin = document.getElementById('btn-role-admin');
+      const btnStaff = document.getElementById('btn-role-staff');
+      const staffBox = document.getElementById('staff-identity-box');
+      const staffSelect = document.getElementById('active-staff-select');
+      const miniAvatar = document.getElementById('active-staff-mini-avatar');
+      const banner = document.getElementById('role-policy-banner');
+
+      if (isAdmin()) {
+        btnQuickBrand.classList.remove('hidden');
+        btnQuickBrand.classList.add('inline-flex');
+
+        btnAdmin.style.backgroundColor = 'var(--accent-bg)';
+        btnAdmin.style.color = 'var(--accent-fg)';
+        btnStaff.style.backgroundColor = 'transparent';
+        btnStaff.style.color = 'var(--text-secondary)';
+
+        staffBox.classList.add('hidden');
+        staffBox.classList.remove('flex');
+
+        banner.style.backgroundColor = 'var(--accent-bg)';
+        banner.style.color = 'var(--accent-fg)';
+        banner.innerHTML = `
+          <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div class="flex items-center gap-2 font-mono">
+              <span class="px-1.5 py-0.5 font-bold text-[10px]" style="background-color: var(--accent-fg); color: var(--accent-bg); border-radius: 3px;">ADMIN MODE</span>
+              <span>TOÀN QUYỀN QUẢN TRỊ: Chỉnh giao diện, logo thương hiệu, cấu trúc cột dữ liệu, nhân sự, lịch &amp; khóa file.</span>
+            </div>
+            <span class="font-mono text-[11px] opacity-75">BẢO MẬT: MỞ KHÓA TOÀN BỘ</span>
+          </div>
+        `;
+      } else {
+        btnQuickBrand.classList.add('hidden');
+        btnQuickBrand.classList.remove('inline-flex');
+
+        btnAdmin.style.backgroundColor = 'transparent';
+        btnAdmin.style.color = 'var(--text-secondary)';
+        btnStaff.style.backgroundColor = 'var(--accent-bg)';
+        btnStaff.style.color = 'var(--accent-fg)';
+
+        const activeStaffObj = state.staff.find(s => s.id === state.activeStaffId) || state.staff[0];
+        if (activeStaffObj && miniAvatar) {
+          miniAvatar.src = activeStaffObj.avatar || getFallbackAvatarUrl(activeStaffObj.name);
+        }
+
+        staffBox.classList.remove('hidden');
+        staffBox.classList.add('flex');
+        staffSelect.innerHTML = state.staff.map(s => `
+          <option value="${escapeHtml(s.id)}" ${s.id === state.activeStaffId ? 'selected' : ''} style="background-color: var(--bg-card); color: var(--text-primary);">
+            ${escapeHtml(s.name)} (${escapeHtml(s.specialty)})
+          </option>
+        `).join('');
+
+        banner.style.backgroundColor = 'var(--bg-surface)';
+        banner.style.color = 'var(--text-primary)';
+        banner.innerHTML = `
+          <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div class="flex items-center gap-2 font-mono font-semibold">
+              <span class="px-1.5 py-0.5 font-bold text-[10px]" style="background-color: var(--accent-bg); color: var(--accent-fg); border-radius: 3px;">CHẾ ĐỘ NHÂN VIÊN</span>
+              <span>KHÓA CẤU TRÚC &amp; GIAO DIỆN — CHỈ ĐƯỢC THÊM FILE MỚI VÀ SỬA FILE MỞ KHÓA</span>
+            </div>
+            <span class="font-mono text-[11px] theme-text-secondary">QUYỀN HẠN: INSERT &amp; UPDATE FILES ONLY</span>
+          </div>
+        `;
+      }
+    }
+
+    function renderKPIs() {
+      const readyStaffCount = state.staff.filter(s => s.status !== 'Nghỉ phép').length;
+      const lockedFilesCount = state.files.filter(f => f.locked).length;
+      const totalCustomFields = state.customFields.staff.length + state.customFields.schedule.length + state.customFields.files.length;
+
+      const kpiStrip = document.getElementById('kpi-strip');
+      kpiStrip.innerHTML = `
+        <div class="theme-card p-4 sm:p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between text-xs font-mono theme-text-muted uppercase">
+            <span>01 // Nhân sự</span>
+            <i data-lucide="users" class="w-4 h-4"></i>
+          </div>
+          <div class="mt-3 flex items-baseline justify-between gap-2">
+            <span class="text-2xl sm:text-3xl font-extrabold font-mono tracking-tight">${readyStaffCount}/${state.staff.length}</span>
+            <span class="text-xs theme-text-secondary">Nhân sự hoạt động</span>
+          </div>
+        </div>
+
+        <div class="theme-card p-4 sm:p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between text-xs font-mono theme-text-muted uppercase">
+            <span>02 // Lịch sản xuất</span>
+            <i data-lucide="calendar-clock" class="w-4 h-4"></i>
+          </div>
+          <div class="mt-3 flex items-baseline justify-between gap-2">
+            <span class="text-2xl sm:text-3xl font-extrabold font-mono tracking-tight">${state.schedules.length}</span>
+            <span class="text-xs theme-text-secondary">Ca làm việc đã xếp</span>
+          </div>
+        </div>
+
+        <div class="theme-card p-4 sm:p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between text-xs font-mono theme-text-muted uppercase">
+            <span>03 // File dữ liệu</span>
+            <span class="px-1.5 py-0.5 border theme-border theme-surface text-[10px] font-semibold" style="border-radius: 4px;">${lockedFilesCount} ĐÃ KHÓA</span>
+          </div>
+          <div class="mt-3 flex items-baseline justify-between gap-2">
+            <span class="text-2xl sm:text-3xl font-extrabold font-mono tracking-tight">${state.files.length}</span>
+            <span class="text-xs theme-text-secondary">Gói dữ liệu sản xuất</span>
+          </div>
+        </div>
+
+        <div class="theme-card p-4 sm:p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between text-xs font-mono theme-text-muted uppercase">
+            <span>04 // Cấu trúc &amp; UI</span>
+            <span class="px-1.5 py-0.5 text-[10px] font-bold" style="background-color: var(--accent-bg); color: var(--accent-fg); border-radius: 4px;">
+              ${isAdmin() ? 'ADMIN EDIT' : 'LOCKED'}
+            </span>
+          </div>
+          <div class="mt-3 flex items-baseline justify-between gap-2">
+            <span class="text-2xl sm:text-3xl font-extrabold font-mono tracking-tight">${totalCustomFields}</span>
+            <span class="text-xs theme-text-secondary">Trường dữ liệu động</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTabs() {
+      const tabs = [
+        { id: 'staff', code: '01', label: 'Nhân sự', icon: 'users', count: state.staff.length },
+        { id: 'schedule', code: '02', label: 'Lịch làm việc', icon: 'calendar', count: state.schedules.length },
+        { id: 'files', code: '03', label: 'File dữ liệu sản xuất', icon: 'folder-kanban', count: state.files.length }
+      ];
+
+      if (isAdmin()) {
+        const schemaCount = state.customFields.staff.length + state.customFields.schedule.length + state.customFields.files.length;
+        tabs.push({ id: 'structure', code: '04', label: 'Cấu trúc & Giao diện', icon: 'sliders', count: schemaCount, adminOnly: true });
+      }
+
+      const tabBar = document.getElementById('tab-bar');
+      tabBar.innerHTML = tabs.map(t => {
+        const active = state.activeTab === t.id;
+        return `
+          <button
+            onclick="switchTab('${t.id}')"
+            class="px-4 py-3 text-xs sm:text-sm font-bold tracking-tight flex items-center gap-2 border-t border-x transition-all cursor-pointer -mb-[1px]"
+            style="${
+              active
+                ? 'background-color: var(--accent-bg); color: var(--accent-fg); border-color: var(--accent-bg); border-top-left-radius: var(--radius-btn); border-top-right-radius: var(--radius-btn);'
+                : 'background-color: transparent; color: var(--text-secondary); border-color: transparent; border-top-left-radius: var(--radius-btn); border-top-right-radius: var(--radius-btn);'
+            }"
+          >
+            <i data-lucide="${t.icon}" class="w-4 h-4"></i>
+            <span class="font-mono text-[11px] opacity-70">${t.code}.</span>
+            <span>${t.label}</span>
+            <span class="font-mono text-[11px] px-1.5 py-0.2" style="${
+              active
+                ? 'background-color: var(--accent-fg); color: var(--accent-bg); border-radius: 4px;'
+                : 'background-color: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 4px;'
+            }">
+              ${t.count}
+            </span>
+            ${t.adminOnly ? `<span class="font-mono text-[10px] px-1.5 py-0.2 border" style="border-color: currentColor; border-radius: 4px;">ADMIN</span>` : ''}
+          </button>
+        `;
+      }).join('');
+    }
+
+    /**
+     * =====================================================================
+     * TAB 01: QUẢN LÝ NHÂN SỰ (CÓ ẢNH CHÂN DUNG + GRID/TABLE TOGGLE + DRAWER)
+     * =====================================================================
+     */
+    function renderStaffTab() {
+      const specialties = ['ALL', ...new Set(state.staff.map(s => s.specialty))];
+      const statuses = ['ALL', 'Sẵn sàng', 'Đang đi job', 'Nghỉ phép'];
+
+      const filteredStaff = state.staff.filter(s => {
+        const matchSearch =
+          s.name.toLowerCase().includes(filters.staffSearch.toLowerCase()) ||
+          s.id.toLowerCase().includes(filters.staffSearch.toLowerCase()) ||
+          s.position.toLowerCase().includes(filters.staffSearch.toLowerCase()) ||
+          (s.gear || '').toLowerCase().includes(filters.staffSearch.toLowerCase());
+        const matchSpec = filters.staffSpecialty === 'ALL' || s.specialty === filters.staffSpecialty;
+        const matchStatus = filters.staffStatus === 'ALL' || s.status === filters.staffStatus;
+        return matchSearch && matchSpec && matchStatus;
+      });
+
+      const customCols = state.customFields.staff;
+      const portraitClass = state.branding.monoAvatars ? 'portrait-mono' : 'portrait-color';
+
+      return `
+        <div class="space-y-5">
+          <!-- Header & Công cụ Tab Nhân sự -->
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5 pb-4 border-b theme-border">
+            <div>
+              <h2 class="text-lg sm:text-xl font-extrabold tracking-tight">Đội Ngũ Nhân Sự Sản Xuất</h2>
+              <p class="text-xs theme-text-secondary mt-0.5">
+                Hồ sơ chân dung, chuyên môn nghiệp vụ, thiết bị phụ trách và trạng thái điều phối trực tiếp.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2.5">
+              <!-- Chuyển đổi Lưới Thẻ Chân Dung / Bảng Chi Tiết -->
+              <div class="inline-flex border theme-border overflow-hidden text-xs font-mono" style="border-radius: var(--radius-btn);">
+                <button 
+                  onclick="state.staffViewMode = 'grid'; saveState(); renderWorkspaceOnly();"
+                  class="inline-flex items-center gap-1.5 px-3 py-2 font-semibold cursor-pointer transition-colors"
+                  style="${state.staffViewMode === 'grid' ? 'background-color: var(--accent-bg); color: var(--accent-fg);' : 'background-color: var(--bg-card); color: var(--text-primary);'}"
+                >
+                  <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+                  <span>Lưới Thẻ</span>
+                </button>
+                <button 
+                  onclick="state.staffViewMode = 'table'; saveState(); renderWorkspaceOnly();"
+                  class="inline-flex items-center gap-1.5 px-3 py-2 font-semibold border-l theme-border cursor-pointer transition-colors"
+                  style="${state.staffViewMode === 'table' ? 'background-color: var(--accent-bg); color: var(--accent-fg);' : 'background-color: var(--bg-card); color: var(--text-primary);'}"
+                >
+                  <i data-lucide="table-2" class="w-3.5 h-3.5"></i>
+                  <span>Dạng Bảng</span>
+                </button>
+              </div>
+
+              ${isAdmin() ? `
+                <button 
+                  onclick="openQuickCustomFieldModal('staff')"
+                  class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-mono font-semibold btn-secondary cursor-pointer"
+                >
+                  <i data-lucide="columns-3" class="w-3.5 h-3.5"></i>
+                  <span>+ Thêm cột</span>
+                </button>
+                <button 
+                  onclick="openStaffModal()"
+                  class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold btn-primary cursor-pointer"
+                >
+                  <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+                  <span>+ Thêm Nhân Sự</span>
+                </button>
+              ` : `
+                <div class="inline-flex items-center gap-2 px-3 py-2 border border-dashed theme-border-strong theme-surface text-xs font-mono" style="border-radius: var(--radius-btn);">
+                  <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                  <span>CHỈ XEM HỒ SƠ NHÂN SỰ</span>
+                </div>
+              `}
+            </div>
+          </div>
+
+          <!-- Bộ lọc tìm kiếm nhân sự -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 theme-surface p-3.5 border theme-border" style="border-radius: var(--radius-card);">
+            <div>
+              <label class="block font-mono text-[11px] uppercase theme-text-muted mb-1.5">Tìm nhân sự / thiết bị</label>
+              <div class="relative">
+                <input 
+                  type="text" 
+                  value="${escapeHtml(filters.staffSearch)}"
+                  oninput="filters.staffSearch = this.value; renderWorkspaceOnly();"
+                  placeholder="Tên, mã NV, chức danh, Sony FX6..."
+                  class="w-full pl-3 pr-3 py-2 text-xs input-field"
+                />
+              </div>
+            </div>
+            <div>
+              <label class="block font-mono text-[11px] uppercase theme-text-muted mb-1.5">Chuyên môn</label>
+              <select 
+                onchange="filters.staffSpecialty = this.value; renderWorkspaceOnly();"
+                class="w-full px-3 py-2 text-xs input-field cursor-pointer"
+              >
+                ${specialties.map(sp => `<option value="${escapeHtml(sp)}" ${filters.staffSpecialty === sp ? 'selected' : ''}>${sp === 'ALL' ? 'Tất cả chuyên môn' : escapeHtml(sp)}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block font-mono text-[11px] uppercase theme-text-muted mb-1.5">Trạng thái điều phối</label>
+              <select 
+                onchange="filters.staffStatus = this.value; renderWorkspaceOnly();"
+                class="w-full px-3 py-2 text-xs input-field cursor-pointer"
+              >
+                ${statuses.map(st => `<option value="${escapeHtml(st)}" ${filters.staffStatus === st ? 'selected' : ''}>${st === 'ALL' ? 'Tất cả trạng thái' : escapeHtml(st)}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+
+          ${state.staffViewMode === 'grid'
+            ? renderStaffGridView(filteredStaff, customCols, portraitClass)
+            : renderStaffTableView(filteredStaff, customCols, portraitClass)}
+        </div>
+      `;
+    }
+
+    function renderStaffGridView(list, customCols, portraitClass) {
+      if (list.length === 0) {
+        return `
+          <div class="theme-card p-12 text-center theme-text-muted font-mono text-xs">
+            Không tìm thấy nhân sự nào khớp với điều kiện tìm kiếm.
+          </div>
+        `;
+      }
+
+      return `
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          ${list.map(person => {
+            const avatarUrl = person.avatar || getFallbackAvatarUrl(person.name);
+            const fallbackUrl = getFallbackAvatarUrl(person.name);
+            const assignedCount = state.schedules.filter(s => s.staffId === person.id).length;
+
+            const isReady = person.status === 'Sẵn sàng';
+            const isOnJob = person.status === 'Đang đi job';
+
+            return `
+              <article class="group theme-card theme-card-hover overflow-hidden flex flex-col justify-between">
+                <div>
+                  <!-- Phần đầu thẻ: Ảnh chân dung lớn tỷ lệ editorial + Thông tin chính -->
+                  <div class="p-4 sm:p-5 flex items-start gap-4">
+                    <div 
+                      onclick="openStaffDetailModal('${escapeHtml(person.id)}')"
+                      class="w-20 h-24 sm:w-24 sm:h-28 overflow-hidden border theme-border-strong theme-surface shrink-0 cursor-pointer relative"
+                      style="border-radius: var(--radius-btn);"
+                      title="Xem hồ sơ chi tiết ${escapeHtml(person.name)}"
+                    >
+                      <img 
+                        src="${escapeHtml(avatarUrl)}" 
+                        onerror="this.onerror=null; this.src='${escapeHtml(fallbackUrl)}';"
+                        alt="${escapeHtml(person.name)}"
+                        class="w-full h-full object-cover ${portraitClass}"
+                      />
+                    </div>
+
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="font-mono text-[11px] font-bold px-2 py-0.5 border theme-border theme-surface" style="border-radius: 4px;">
+                          ${escapeHtml(person.id)}
+                        </span>
+                        <span 
+                          class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[11px] font-mono font-semibold pill-badge border"
+                          style="${
+                            isReady
+                              ? 'background-color: var(--accent-bg); color: var(--accent-fg); border-color: var(--accent-bg);'
+                              : isOnJob
+                              ? 'background-color: var(--bg-card); color: var(--text-primary); border-color: var(--border-strong);'
+                              : 'background-color: var(--bg-surface); color: var(--text-muted); border-color: var(--border-subtle); border-style: dashed;'
+                          }"
+                        >
+                          <span class="w-1.5 h-1.5 rounded-full" style="background-color: currentColor;"></span>
+                          ${escapeHtml(person.status)}
+                        </span>
+                      </div>
+
+                      <h3 
+                        onclick="openStaffDetailModal('${escapeHtml(person.id)}')"
+                        class="font-extrabold text-base tracking-tight mt-2 truncate cursor-pointer hover:underline"
+                      >
+                        ${escapeHtml(person.name)}
+                      </h3>
+                      <p class="text-xs theme-text-secondary font-medium mt-0.5 truncate">
+                        ${escapeHtml(person.position)}
+                      </p>
+
+                      <div class="mt-2.5 flex flex-wrap items-center gap-1.5">
+                        <span class="text-[11px] font-mono px-2 py-0.5 theme-surface border theme-border" style="border-radius: 4px;">
+                          ${escapeHtml(person.specialty)}
+                        </span>
+                        <span class="text-[11px] font-mono px-2 py-0.5 theme-surface border theme-border theme-text-secondary" style="border-radius: 4px;">
+                          ${assignedCount} ca lịch
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Phần giữa thẻ: Thiết bị & Trường dữ liệu động -->
+                  <div class="px-4 sm:px-5 pb-4 space-y-2 text-xs border-t theme-border pt-3.5">
+                    <div class="flex items-start gap-2">
+                      <i data-lucide="camera" class="w-3.5 h-3.5 mt-0.5 theme-text-muted shrink-0"></i>
+                      <span class="theme-text-secondary line-clamp-1"><strong class="font-semibold" style="color: var(--text-primary);">Thiết bị:</strong> ${escapeHtml(person.gear || 'Chưa cập nhật')}</span>
+                    </div>
+                    <div class="flex items-center gap-2 font-mono text-[11px]">
+                      <i data-lucide="phone" class="w-3.5 h-3.5 theme-text-muted shrink-0"></i>
+                      <span>${escapeHtml(person.phone)}</span>
+                      <span class="theme-text-muted">•</span>
+                      <span class="truncate theme-text-secondary">${escapeHtml(person.email)}</span>
+                    </div>
+                    ${customCols.map(cf => `
+                      <div class="flex items-start gap-2 pt-0.5">
+                        <i data-lucide="tag" class="w-3.5 h-3.5 mt-0.5 theme-text-muted shrink-0"></i>
+                        <span class="theme-text-secondary"><strong class="font-semibold" style="color: var(--text-primary);">${escapeHtml(cf.label)}:</strong> ${escapeHtml(person.customValues?.[cf.id] || '—')}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+
+                <!-- Chân thẻ: Xem chi tiết + Nút Sửa/Xóa (Chỉ Admin) -->
+                <div class="px-4 sm:px-5 py-3 theme-surface border-t theme-border flex items-center justify-between gap-2">
+                  <button 
+                    onclick="openStaffDetailModal('${escapeHtml(person.id)}')"
+                    class="inline-flex items-center gap-1.5 text-xs font-mono font-semibold hover:underline cursor-pointer"
+                  >
+                    <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                    <span>Xem hồ sơ &amp; lịch</span>
+                  </button>
+
+                  ${isAdmin() ? `
+                    <div class="inline-flex items-center gap-1.5">
+                      <button 
+                        onclick="openStaffModal('${escapeHtml(person.id)}')"
+                        class="px-2.5 py-1 font-mono text-[11px] font-semibold btn-secondary cursor-pointer"
+                      >
+                        Sửa
+                      </button>
+                      <button 
+                        onclick="confirmDeleteStaff('${escapeHtml(person.id)}')"
+                        class="px-2.5 py-1 font-mono text-[11px] font-semibold btn-secondary cursor-pointer"
+                      >
+                        Xóa
+                      </button>
+                    </div>
+                  ` : ''}
+                </div>
+              </article>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function renderStaffTableView(list, customCols, portraitClass) {
+      return `
+        <div class="theme-card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="theme-surface border-b theme-border-strong font-mono text-[11px] uppercase theme-text-secondary">
+                  <th class="table-cell-pad border-r theme-border">Nhân sự &amp; Ảnh chân dung</th>
+                  <th class="table-cell-pad border-r theme-border">Chuyên môn</th>
+                  <th class="table-cell-pad border-r theme-border">Trạng thái</th>
+                  <th class="table-cell-pad border-r theme-border">Thiết bị phụ trách</th>
+                  <th class="table-cell-pad border-r theme-border">Liên hệ</th>
+                  ${customCols.map(cf => `
+                    <th class="table-cell-pad border-r theme-border">
+                      <div class="flex items-center gap-1">
+                        <span>${escapeHtml(cf.label)}</span>
+                        <span class="text-[9px] px-1 border theme-border" style="border-radius: 3px;">CUSTOM</span>
+                      </div>
+                    </th>
+                  `).join('')}
+                  <th class="table-cell-pad text-right">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y theme-border text-xs">
+                ${list.length === 0 ? `
+                  <tr>
+                    <td colspan="${6 + customCols.length}" class="py-10 text-center theme-text-muted font-mono">
+                      Không tìm thấy nhân sự nào khớp với điều kiện lọc.
+                    </td>
+                  </tr>
+                ` : list.map(person => {
+                  const avatarUrl = person.avatar || getFallbackAvatarUrl(person.name);
+                  const fallbackUrl = getFallbackAvatarUrl(person.name);
+                  const isReady = person.status === 'Sẵn sàng';
+                  const isOnJob = person.status === 'Đang đi job';
+
+                  return `
+                    <tr class="group transition-colors hover:opacity-95" style="background-color: var(--bg-card);">
+                      <td class="table-cell-pad border-r theme-border">
+                        <div class="flex items-center gap-3">
+                          <img 
+                            src="${escapeHtml(avatarUrl)}" 
+                            onerror="this.onerror=null; this.src='${escapeHtml(fallbackUrl)}';"
+                            alt="${escapeHtml(person.name)}"
+                            onclick="openStaffDetailModal('${escapeHtml(person.id)}')"
+                            class="w-11 h-11 rounded-full object-cover border theme-border-strong shrink-0 cursor-pointer ${portraitClass}"
+                          />
+                          <div>
+                            <div class="flex items-center gap-1.5">
+                              <span class="font-mono text-[11px] font-bold theme-text-muted">${escapeHtml(person.id)}</span>
+                              <button onclick="openStaffDetailModal('${escapeHtml(person.id)}')" class="font-bold text-sm hover:underline cursor-pointer text-left">
+                                ${escapeHtml(person.name)}
+                              </button>
+                            </div>
+                            <div class="theme-text-secondary mt-0.5">${escapeHtml(person.position)}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="table-cell-pad border-r theme-border whitespace-nowrap">
+                        <span class="px-2.5 py-1 border theme-border theme-surface font-mono text-[11px]" style="border-radius: 4px;">
+                          ${escapeHtml(person.specialty)}
+                        </span>
+                      </td>
+                      <td class="table-cell-pad border-r theme-border whitespace-nowrap">
+                        <span 
+                          class="inline-flex items-center gap-1.5 px-2.5 py-1 border pill-badge text-[11px] font-mono font-semibold"
+                          style="${
+                            isReady
+                              ? 'background-color: var(--accent-bg); color: var(--accent-fg); border-color: var(--accent-bg);'
+                              : isOnJob
+                              ? 'background-color: var(--bg-card); color: var(--text-primary); border-color: var(--border-strong);'
+                              : 'background-color: var(--bg-surface); color: var(--text-muted); border-color: var(--border-subtle); border-style: dashed;'
+                          }"
+                        >
+                          <span class="w-1.5 h-1.5 rounded-full" style="background-color: currentColor;"></span>
+                          ${escapeHtml(person.status)}
+                        </span>
+                      </td>
+                      <td class="table-cell-pad border-r theme-border theme-text-secondary max-w-xs">
+                        ${escapeHtml(person.gear || '—')}
+                      </td>
+                      <td class="table-cell-pad border-r theme-border font-mono text-[11px] whitespace-nowrap">
+                        <div class="font-semibold">${escapeHtml(person.phone)}</div>
+                        <div class="theme-text-muted">${escapeHtml(person.email)}</div>
+                      </td>
+                      ${customCols.map(cf => `
+                        <td class="table-cell-pad border-r theme-border theme-text-secondary">
+                          ${escapeHtml(person.customValues?.[cf.id] || '—')}
+                        </td>
+                      `).join('')}
+                      <td class="table-cell-pad text-right whitespace-nowrap">
+                        <div class="inline-flex items-center gap-1.5">
+                          <button 
+                            onclick="openStaffDetailModal('${escapeHtml(person.id)}')"
+                            class="px-2.5 py-1.5 font-mono text-[11px] font-semibold btn-secondary cursor-pointer"
+                          >
+                            Hồ sơ
+                          </button>
+                          ${isAdmin() ? `
+                            <button 
+                              onclick="openStaffModal('${escapeHtml(person.id)}')"
+                              class="px-2.5 py-1.5 font-mono text-[11px] font-semibold btn-secondary cursor-pointer"
+                            >
+                              Sửa
+                            </button>
+                            <button 
+                              onclick="confirmDeleteStaff('${escapeHtml(person.id)}')"
+                              class="px-2.5 py-1.5 font-mono text-[11px] font-semibold btn-secondary cursor-pointer"
+                            >
+                              Xóa
+                            </button>
+                          ` : ''}
+                        </div>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    /**
+     * =====================================================================
+     * TAB 02: PHÂN CÔNG LỊCH LÀM VIỆC (KÈM AVATAR NHÂN SỰ + LỌC "LỊCH CỦA TÔI")
+     * =====================================================================
+     */
+    function renderScheduleTab() {
+      const statuses = ['ALL', 'Sắp diễn ra', 'Đang thực hiện', 'Hoàn thành'];
+      const effectiveStaffFilter = filters.myScheduleOnly ? state.activeStaffId : filters.scheduleStaffId;
+
+      const filteredSchedules = state.schedules.filter(item => {
+        const staffObj = state.staff.find(s => s.id === item.staffId);
+        const staffName = staffObj ? staffObj.name : '';
+        const matchSearch =
+          item.project.toLowerCase().includes(filters.scheduleSearch.toLowerCase()) ||
+          item.task.toLowerCase().includes(filters.scheduleSearch.toLowerCase()) ||
+          item.location.toLowerCase().includes(filters.scheduleSearch.toLowerCase()) ||
+          staffName.toLowerCase().includes(filters.scheduleSearch.toLowerCase());
+        const matchStaff = effectiveStaffFilter === 'ALL' || item.staffId === effectiveStaffFilter;
+        const matchStatus = filters.scheduleStatus === 'ALL' || item.status === filters.scheduleStatus;
+        return matchSearch && matchStaff && matchStatus;
+      });
+
+      const customCols = state.customFields.schedule;
+      const portraitClass = state.branding.monoAvatars ? 'portrait-mono' : 'portrait-color';
+
+      return `
+        <div class="space-y-5">
+          <!-- Header Tab Lịch làm việc -->
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5 pb-4 border-b theme-border">
+            <div>
+              <h2 class="text-lg sm:text-xl font-extrabold tracking-tight">Phân Công Lịch Sản Xuất &amp; Ca Làm Việc</h2>
+              <p class="text-xs theme-text-secondary mt-0.5">
+                Điều phối lịch quay, dựng hậu kỳ, nhiếp ảnh và thu âm theo từng dự án và nhân sự phụ trách.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2.5">
+              <!-- Chuyển đổi chế độ xem: Dạng Bảng Chi Tiết vs Dạng Thẻ Theo Ngày -->
+              <div class="inline-flex border theme-border overflow-hidden text-xs font-mono" style="border-radius: var(--radius-btn);">
+                <button 
+                  onclick="state.scheduleViewMode = 'table'; saveState(); renderWorkspaceOnly();"
+                  class="inline-flex items-center gap-1.5 px-3 py-2 font-semibold cursor-pointer"
+                  style="${state.scheduleViewMode === 'table' ? 'background-color: var(--accent-bg); color: var(--accent-fg);' : 'background-color: var(--bg-card); color: var(--text-primary);'}"
+                >
+                  <i data-lucide="table" class="w-3.5 h-3.5"></i>
+                  <span>Bảng Chi Tiết</span>
+                </button>
+                <button 
+                  onclick="state.scheduleViewMode = 'timeline'; saveState(); renderWorkspaceOnly();"
+                  class="inline-flex items-center gap-1.5 px-3 py-2 font-semibold border-l theme-border cursor-pointer"
+                  style="${state.scheduleViewMode === 'timeline' ? 'background-color: var(--accent-bg); color: var(--accent-fg);' : 'background-color: var(--bg-card); color: var(--text-primary);'}"
+                >
+                  <i data-lucide="calendar-days" class="w-3.5 h-3.5"></i>
+                  <span>Theo Ngày / Timeline</span>
+                </button>
+              </div>
+
+              ${isAdmin() ? `
+                <button 
+                  onclick="openQuickCustomFieldModal('schedule')"
+                  class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-mono font-semibold btn-secondary cursor-pointer"
+                >
+                  <i data-lucide="columns-3" class="w-3.5 h-3.5"></i>
+                  <span>+ Thêm cột</span>
+                </button>
+                <button 
+                  onclick="openScheduleModal()"
+                  class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold btn-primary cursor-pointer"
+                >
+                  <i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i>
+                  <span>+ Tạo Lịch Phân Công</span>
+                </button>
+              ` : `
+                <div class="inline-flex items-center gap-2 px-3 py-2 border border-dashed theme-border-strong theme-surface text-xs font-mono" style="border-radius: var(--radius-btn);">
+                  <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                  <span>CHỈ XEM LỊCH PHÂN CÔNG</span>
+                </div>
+              `}
+            </div>
+          </div>
+
+          <!-- Bộ lọc thông minh (Có nút Lọc nhanh "Lịch của tôi") -->
+          <div class="theme-surface p-3.5 border theme-border space-y-3" style="border-radius: var(--radius-card);">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex flex-wrap items-center gap-2">
+                <button
+                  onclick="filters.myScheduleOnly = !filters.myScheduleOnly; if(filters.myScheduleOnly) filters.scheduleStaffId = 'ALL'; renderWorkspaceOnly();"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-bold border cursor-pointer transition-all"
+                  style="${
+                    filters.myScheduleOnly
+                      ? 'background-color: var(--accent-bg); color: var(--accent-fg); border-color: var(--accent-bg); border-radius: var(--radius-pill);'
+                      : 'background-color: var(--bg-card); color: var(--text-primary); border-color: var(--border-strong); border-radius: var(--radius-pill);'
+                  }"
+                >
+                  <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+                  <span>Lịch của tôi (${escapeHtml((state.staff.find(s => s.id === state.activeStaffId) || {}).name || 'Nhân sự')})</span>
+                </button>
+
+                ${filters.myScheduleOnly || filters.scheduleStaffId !== 'ALL' || filters.scheduleStatus !== 'ALL' || filters.scheduleSearch ? `
+                  <button
+                    onclick="filters.myScheduleOnly = false; filters.scheduleStaffId = 'ALL'; filters.scheduleStatus = 'ALL'; filters.scheduleSearch = ''; renderWorkspaceOnly();"
+                    class="text-xs font-mono underline theme-text-secondary hover:opacity-80 cursor-pointer px-2"
+                  >
+                    Xóa bộ lọc
+                  </button>
+                ` : ''}
+              </div>
+
+              <span class="font-mono text-[11px] theme-text-muted">
+                Hiển thị <strong>${filteredSchedules.length}</strong> / ${state.schedules.length} ca làm việc
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="block font-mono text-[11px] uppercase theme-text-muted mb-1">Tìm dự án / đầu việc / địa điểm</label>
+                <input 
+                  type="text" 
+                  value="${escapeHtml(filters.scheduleSearch)}"
+                  oninput="filters.scheduleSearch = this.value; renderWorkspaceOnly();"
+                  placeholder="TVC Tết, Ocean Park, Rough Cut..."
+                  class="w-full px-3 py-2 text-xs input-field"
+                />
+              </div>
+              <div>
+                <label class="block font-mono text-[11px] uppercase theme-text-muted mb-1">Nhân sự phụ trách</label>
+                <select 
+                  onchange="filters.myScheduleOnly = false; filters.scheduleStaffId = this.value; renderWorkspaceOnly();"
+                  class="w-full px-3 py-2 text-xs input-field cursor-pointer"
+                >
+                  <option value="ALL" ${effectiveStaffFilter === 'ALL' ? 'selected' : ''}>Tất cả nhân sự</option>
+                  ${state.staff.map(s => `
+                    <option value="${escapeHtml(s.id)}" ${effectiveStaffFilter === s.id ? 'selected' : ''}>
+                      ${escapeHtml(s.name)} — ${escapeHtml(s.specialty)}
+                    </option>
+                  `).join('')}
+                </select>
+              </div>
+              <div>
+                <label class="block font-mono text-[11px] uppercase theme-text-muted mb-1">Trạng thái ca việc</label>
+                <select 
+                  onchange="filters.scheduleStatus = this.value; renderWorkspaceOnly();"
+                  class="w-full px-3 py-2 text-xs input-field cursor-pointer"
+                >
+                  ${statuses.map(st => `<option value="${escapeHtml(st)}" ${filters.scheduleStatus === st ? 'selected' : ''}>${st === 'ALL' ? 'Tất cả trạng thái' : escapeHtml(st)}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          ${state.scheduleViewMode === 'table'
+            ? renderScheduleTable(filteredSchedules, customCols, portraitClass)
+            : renderScheduleTimeline(filteredSchedules, customCols, portraitClass)}
+        </div>
+      `;
+    }
+
+    function renderScheduleTable(items, customCols, portraitClass) {
+      return `
+        <div class="theme-card overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="theme-surface border-b theme-border-strong font-mono text-[11px] uppercase theme-text-secondary">
+                  <th class="table-cell-pad border-r theme-border">Ngày &amp; Ca làm việc</th>
+                  <th class="table-cell-pad border-r theme-border">Dự án &amp; Nội dung công việc</th>
+                  <th class="table-cell-pad border-r theme-border">Nhân sự phụ trách</th>
+                  <th class="table-cell-pad border-r theme-border">Địa điểm</th>
+                  <th class="table-cell-pad border-r theme-border">Trạng thái</th>
+                  ${customCols.map(cf => `
+                    <th class="table-cell-pad border-r theme-border">
+                      <div class="flex items-center gap-1">
+                        <span>${escapeHtml(cf.label)}</span>
+                        <span class="text-[9px] px-1 border theme-border" style="border-radius: 3px;">CUSTOM</span>
+                      </div>
+                    </th>
+                  `).join('')}
+                  ${isAdmin() ? `<th class="table-cell-pad text-right">Thao tác Admin</th>` : ''}
+                </tr>
+              </thead>
+              <tbody class="divide-y theme-border text-xs">
+                ${items.length === 0 ? `
+                  <tr>
+                    <td colspan="${6 + customCols.length}" class="py-10 text-center theme-text-muted font-mono">
+                      Không có lịch làm việc nào khớp với bộ lọc hiện tại.
+                    </td>
+                  </tr>
+                ` : items.map(sch => {
+                  const staffObj = state.staff.find(s => s.id === sch.staffId);
+                  const avatarUrl = staffObj ? (staffObj.avatar || getFallbackAvatarUrl(staffObj.name)) : '';
+                  const fallbackUrl = staffObj ? getFallbackAvatarUrl(staffObj.name) : '';
+
+                  return `
+                    <tr class="group transition-colors" style="background-color: var(--bg-card);">
+                      <td class="table-cell-pad border-r theme-border whitespace-nowrap font-mono">
+                        <div class="font-bold">${escapeHtml(sch.date)}</div>
+                        <div class="text-[11px] theme-text-secondary mt-0.5">${escapeHtml(sch.shift)}</div>
+                      </td>
+                      <td class="table-cell-pad border-r theme-border max-w-xs">
+                        <div class="font-mono text-[11px] font-semibold theme-text-muted">${escapeHtml(sch.project)}</div>
+                        <div class="font-bold mt-0.5 leading-snug">${escapeHtml(sch.task)}</div>
+                      </td>
+                      <td class="table-cell-pad border-r theme-border whitespace-nowrap">
+                        ${staffObj ? `
+                          <div class="flex items-center gap-2.5">
+                            <img 
+                              src="${escapeHtml(avatarUrl)}" 
+                              onerror="this.onerror=null; this.src='${escapeHtml(fallbackUrl)}';"
+                              alt="${escapeHtml(staffObj.name)}"
+                              class="w-8 h-8 rounded-full object-cover border theme-border-strong shrink-0 ${portraitClass}"
+                            />
+                            <div>
+                              <div class="font-bold">${escapeHtml(staffObj.name)}</div>
+                              <div class="text-[11px] theme-text-muted font-mono">${escapeHtml(staffObj.specialty)}</div>
+                            </div>
+                          </div>
+                        ` : `<span class="theme-text-muted italic">Chưa chỉ định</span>`}
+                      </td>
+                      <td class="table-cell-pad border-r theme-border theme-text-secondary">
+                        ${escapeHtml(sch.location)}
+                      </td>
+                      <td class="table-cell-pad border-r theme-border whitespace-nowrap">
+                        ${isAdmin() ? `
+                          <select 
+                            onchange="quickUpdateScheduleStatus('${escapeHtml(sch.id)}', this.value)"
+                            class="px-2.5 py-1 font-mono text-[11px] font-semibold border theme-border-strong cursor-pointer"
+                            style="border-radius: var(--radius-btn); ${
+                              sch.status === 'Đang thực hiện'
+                                ? 'background-color: var(--accent-bg); color: var(--accent-fg);'
+                                : 'background-color: var(--bg-card); color: var(--text-primary);'
+                            }"
+                          >
+                            ${['Sắp diễn ra', 'Đang thực hiện', 'Hoàn thành'].map(st => `
+                              <option value="${st}" ${sch.status === st ? 'selected' : ''} style="background-color: var(--bg-card); color: var(--text-primary);">${st}</option>
+                            `).join('')}
+                          </select>
+                        ` : `
+                          <span 
+                            class="inline-block px-2.5 py-1 border font-mono text-[11px] font-semibold pill-badge"
+                            style="${
+                              sch.status === 'Đang thực hiện'
+                                ? 'background-color: var(--accent-bg); color: var(--accent-fg); border-color: var(--accent-bg);'
+                                : sch.status === 'Hoàn thành'
+                                ? 'background-color: var(--bg-surface); color: var(--text-secondary); border-color: var(--border-subtle);'
+                                : 'background-color: var(--bg-card); color: var(--text-primary); border-color: var(--border-strong);'
+                            }"
+                          >
+                            ${escapeHtml(sch.status)}
+                          </span>
+                        `}
+                      </td>
+                      ${customCols.map(cf => `
+                        <td class="table-cell-pad border-r theme-border theme-text-secondary">
+                          ${escapeHtml(sch.customValues?.[cf.id] || '—')}
+                        </td>
+                      `).join('')}
+                      ${isAdmin() ? `
+                        <td class="table-cell-pad text-right whitespace-nowrap">
+                          <div class="inline-flex items-center gap-1.5">
+                            <button 
+                              onclick="openScheduleModal('${escapeHtml(sch.id)}')"
+                              class="px-2.5 py-1.5 font-mono text-[11px] font-semibold btn-secondary cursor-pointer"
+                            >
+                              Sửa
+                            </button>
+                            <button 
+                              onclick="confirmDeleteSchedule('${escapeHtml(sch.id)}')"
+                              class="px-2.5 py-1.5 font-mono text-[11px] font-semibold btn-secondary cursor-pointer"
+                            >
+                              Xóa
+                            </button>
+                          </div>
+                        </td>
+                      ` : ''}
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderScheduleTimeline(items, customCols, portraitClass) {
+      if (items.length === 0) {
+        return `
+          <div class="theme-card p-12 text-center theme-text-muted font-mono text-xs">
+            Không có lịch làm việc nào khớp với bộ lọc.
+          </div>
+        `;
+      }
+
+      const grouped = {};
+      items.forEach(item => {
+        if (!grouped[item.date]) grouped[item.date] = [];
+        grouped[item.date].push(item);
+      });
+
+      const sortedDates = Object.keys(grouped).sort();
+
+      return `
+        <div class="space-y-5">
+          ${sortedDates.map(dateStr => `
+            <div class="theme-card overflow-hidden">
+              <div class="px-4 sm:px-5 py-3 flex items-center justify-between" style="background-color: var(--accent-bg); color: var(--accent-fg);">
+                <div class="flex items-center gap-2 font-mono text-xs font-bold tracking-wider">
+                  <i data-lucide="calendar" class="w-4 h-4"></i>
+                  <span>NGÀY SẢN XUẤT: ${escapeHtml(dateStr)}</span>
+                </div>
+                <span class="font-mono text-[11px] px-2.5 py-0.5 font-bold" style="background-color: var(--accent-fg); color: var(--accent-bg); border-radius: var(--radius-pill);">
+                  ${grouped[dateStr].length} CA PHÂN CÔNG
+                </span>
+              </div>
+
+              <div class="divide-y theme-border">
+                ${grouped[dateStr].map(sch => {
+                  const staffObj = state.staff.find(s => s.id === sch.staffId);
+                  const avatarUrl = staffObj ? (staffObj.avatar || getFallbackAvatarUrl(staffObj.name)) : '';
+                  const fallbackUrl = staffObj ? getFallbackAvatarUrl(staffObj.name) : '';
+
+                  return `
+                    <div class="group p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 transition-colors">
+                      <div class="flex items-start gap-3.5 flex-1">
+                        ${staffObj ? `
+                          <img 
+                            src="${escapeHtml(avatarUrl)}" 
+                            onerror="this.onerror=null; this.src='${escapeHtml(fallbackUrl)}';"
+                            alt="${escapeHtml(staffObj.name)}"
+                            class="w-11 h-11 rounded-full object-cover border theme-border-strong shrink-0 mt-0.5 ${portraitClass}"
+                          />
+                        ` : ''}
+                        <div class="space-y-1.5 flex-1">
+                          <div class="flex flex-wrap items-center gap-2">
+                            <span class="font-mono text-xs font-bold px-2.5 py-0.5 border theme-border-strong theme-surface" style="border-radius: 4px;">
+                              ${escapeHtml(sch.shift)}
+                            </span>
+                            <span class="font-mono text-xs theme-text-secondary font-semibold">
+                              ${escapeHtml(sch.project)}
+                            </span>
+                            <span 
+                              class="font-mono text-[11px] px-2.5 py-0.5 border pill-badge font-semibold"
+                              style="${sch.status === 'Đang thực hiện' ? 'background-color: var(--accent-bg); color: var(--accent-fg); border-color: var(--accent-bg);' : 'border-color: var(--border-strong);'}"
+                            >
+                              ${escapeHtml(sch.status)}
+                            </span>
+                          </div>
+                          <h4 class="font-bold text-sm sm:text-base">${escapeHtml(sch.task)}</h4>
+                          <div class="flex flex-wrap items-center gap-x-5 gap-y-1 text-xs theme-text-secondary">
+                            <span><strong style="color: var(--text-primary);">Phụ trách:</strong> ${staffObj ? `${escapeHtml(staffObj.name)} (${escapeHtml(staffObj.specialty)})` : 'Chưa chỉ định'}</span>
+                            <span><strong style="color: var(--text-primary);">Địa điểm:</strong> ${escapeHtml(sch.location)}</span>
+                            ${customCols.map(cf => `
+                              <span><strong style="color: var(--text-primary);">${escapeHtml(cf.label)}:</strong> ${escapeHtml(sch.customValues?.[cf.id] || '—')}</span>
+                            `).join('')}
+                          </div>
+                        </div>
+                      </div>
+
+                      ${isAdmin() ? `
+                        <div class="flex items-center gap-2 shrink-0">
+                          <button onclick="openScheduleModal('${escapeHtml(sch.id)}')" class="px-3 py-1.5 font-mono text-xs font-semibold btn-secondary cursor-pointer">
+                            Sửa lịch
+                          </button>
+                          <button onclick="confirmDeleteSchedule('${escapeHtml(sch.id)}')" class="px-3 py-1.5 font-mono text-xs font-semibold btn-secondary cursor-pointer">
+                            Xóa
+                          </button>
+                        </div>
+                      ` : ''}
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function quickUpdateScheduleStatus(scheduleId, newStatus) {
+      if (!isAdmin()) return;
+      const idx = state.schedules.findIndex(s => s.id === scheduleId);
+      if (idx !== -1) {
+        state.schedules[idx].status = newStatus;
+        saveState();
+        renderApp();
+        showToast('ĐỔI TRẠNG THÁI LỊCH', `Ca ${scheduleId} đã chuyển sang: ${newStatus}.`);
+      }
+    }
+
+    /**
+     * =====================================================================
+     * TAB 03: FILE DỮ LIỆU SẢN XUẤT (THÊM & SỬA FILE MỞ KHÓA + LOCK/DELETE ADMIN)
+     * =====================================================================
+     */
+    function renderFilesTab() {
+      const categories = ['ALL', ...state.fileCategories];
+      const projects = ['ALL', ...state.projects];
+
+      const filteredFiles = state.files.filter(f => {
+        const matchSearch =
+          f.name.toLowerCase().includes(filters.fileSearch.toLowerCase()) ||
+          f.id.toLowerCase().includes(filters.fileSearch.toLowerCase()) ||
+          f.updatedBy.toLowerCase().includes(filters.fileSearch.toLowerCase()) ||
+          f.notes.toLowerCase().includes(filters.fileSearch.toLowerCase());
+        const matchCat = filters.fileCategory === 'ALL' || f.category === filters.fileCategory;
+        const matchPrj = filters.fileProject === 'ALL' || f.project === filters.fileProject;
+        return matchSearch && matchCat && matchPrj;
+      });
+
+      const customCols = state.customFields.files;
+      const portraitClass = state.branding.monoAvatars ? 'portrait-mono' : 'portrait-color';
+
+      return `
+        <div class="space-y-5">
+          <!-- Header Tab File Dữ Liệu -->
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5 pb-4 border-b theme-border">
+            <div>
+              <h2 class="text-lg sm:text-xl font-extrabold tracking-tight">Kho File Dữ Liệu Sản Xuất &amp; Phiên Bản</h2>
+              <p class="text-xs theme-text-secondary mt-0.5">
+                Quản lý Source RAW, Project dựng, Bản Master và nhật ký lịch sử cập nhật phiên bản.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2.5">
+              ${isAdmin() ? `
+                <button 
+                  onclick="openQuickCustomFieldModal('files')"
+                  class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-mono font-semibold btn-secondary cursor-pointer"
+                >
+                  <i data-lucide="columns-3" class="w-3.5 h-3.5"></i>
+                  <span>+ Thêm cột file</span>
+                </button>
+              ` : `
+                <span class="px-3 py-2 border theme-border-strong theme-surface font-mono text-[11px] font-semibold" style="border-radius: var(--radius-btn);">
+                  QUYỀN NHÂN VIÊN: THÊM &amp; SỬA FILE MỞ KHÓA
+                </span>
+              `}
+              
+              <!-- Cả Admin & Nhân viên đều có quyền Thêm File Mới -->
+              <button 
+                onclick="openFileModal()"
+                class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold btn-primary cursor-pointer"
+              >
+                <i data-lucide="file-plus-2" class="w-3.5 h-3.5"></i>
+                <span>+ Thêm File Mới</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Bộ lọc tìm kiếm file -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 theme-surface p-3.5 border theme-border" style="border-radius: var(--radius-card);">
+            <div>
+              <label class="block font-mono text-[11px] uppercase theme-text-muted mb-1.5">Tìm tên file / mã / người cập nhật</label>
+              <input 
+                type="text" 
+                value="${escapeHtml(filters.fileSearch)}"
+                oninput="filters.fileSearch = this.value; renderWorkspaceOnly();"
+                placeholder="RAW, Timeline, FILE-001, Minh Quân..."
+                class="w-full px-3 py-2 text-xs input-field"
+              />
+            </div>
+            <div>
+              <label class="block font-mono text-[11px] uppercase theme-text-muted mb-1.5">Phân loại File</label>
+              <select 
+                onchange="filters.fileCategory = this.value; renderWorkspaceOnly();"
+                class="w-full px-3 py-2 text-xs input-field cursor-pointer"
+              >
+                ${categories.map(cat => `<option value="${escapeHtml(cat)}" ${filters.fileCategory === cat ? 'selected' : ''}>${cat === 'ALL' ? 'Tất cả phân loại file' : escapeHtml(cat)}</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block font-mono text-[11px] uppercase theme-text-muted mb-1.5">Dự án liên quan</label>
+              <select 
+                onchange="filters.fileProject = this.value; renderWorkspaceOnly();"
+                class="w-full px-3 py-2 text-xs input-field cursor-pointer"
+              >
+                ${projects.map(prj => `<option value="${escapeHtml(prj)}" ${filters.fileProject === prj ? 'selected' : ''}>${prj === 'ALL' ? 'Tất cả dự án' : escapeHtml(prj)}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+
+          <!-- Bảng File Sản xuất -->
+          <div class="theme-card overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="theme-surface border-b theme-border-strong font-mono text-[11px] uppercase theme-text-secondary">
+                    <th class="table-cell-pad border-r theme-border">Mã &amp; Tên File</th>
+                    <th class="table-cell-pad border-r theme-border">Phân loại</th>
+                    <th class="table-cell-pad border-r theme-border">Phiên bản</th>
+                    <th class="table-cell-pad border-r theme-border">Đường dẫn lưu trữ</th>
+                    <th class="table-cell-pad border-r theme-border">Cập nhật gần nhất</th>
+                    <th class="table-cell-pad border-r theme-border">Ghi chú sản xuất</th>
+                    ${customCols.map(cf => `
+                      <th class="table-cell-pad border-r theme-border">
+                        <div class="flex items-center gap-1">
+                          <span>${escapeHtml(cf.label)}</span>
+                          <span class="text-[9px] px-1 border theme-border" style="border-radius: 3px;">CUSTOM</span>
+                        </div>
+                      </th>
+                    `).join('')}
+                    <th class="table-cell-pad text-right">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y theme-border text-xs">
+                  ${filteredFiles.length === 0 ? `
+                    <tr>
+                      <td colspan="${8 + customCols.length}" class="py-10 text-center theme-text-muted font-mono">
+                        Chưa có file dữ liệu nào khớp với bộ lọc hiện tại.
+                      </td>
+                    </tr>
+                  ` : filteredFiles.map(file => {
+                    const historyCount = file.history ? file.history.length : 1;
+                    const updaterStaff = getStaffByName(file.updatedBy);
+                    const updaterAvatar = updaterStaff ? (updaterStaff.avatar || getFallbackAvatarUrl(file.updatedBy)) : getFallbackAvatarUrl(file.updatedBy);
+                    const updaterFallback = getFallbackAvatarUrl(file.updatedBy);
+                    const canEditFile = isAdmin() || !file.locked;
+
+                    return `
+                      <tr class="group transition-colors" style="background-color: var(--bg-card);">
+                        <td class="table-cell-pad border-r theme-border max-w-xs">
+                          <div class="flex flex-wrap items-center gap-1.5">
+                            <span class="font-mono text-[11px] font-bold px-1.5 py-0.5 theme-surface border theme-border" style="border-radius: 4px;">
+                              ${escapeHtml(file.id)}
+                            </span>
+                            ${file.locked ? `
+                              <span class="inline-flex items-center gap-1 font-mono text-[10px] font-bold px-1.5 py-0.5" style="background-color: var(--accent-bg); color: var(--accent-fg); border-radius: 4px;">
+                                <i data-lucide="lock" class="w-2.5 h-2.5"></i>
+                                <span>ĐÃ KHÓA</span>
+                              </span>
+                            ` : `
+                              <span class="inline-flex items-center gap-1 font-mono text-[10px] px-1.5 py-0.5 border theme-border theme-text-muted" style="border-radius: 4px;">
+                                <i data-lucide="unlock" class="w-2.5 h-2.5"></i>
+                                <span>MỞ</span>
+                              </span>
+                            `}
+                          </div>
+                          <div class="font-mono font-bold mt-1.5 break-all">
+                            ${escapeHtml(file.name)}
+                          </div>
+                          <div class="text-[11px] theme-text-muted mt-0.5 truncate">
+                            ${escapeHtml(file.project)}
+                          </div>
+                        </td>
+
+                        <td class="table-cell-pad border-r theme-border whitespace-nowrap">
+                          <span class="px-2.5 py-1 border theme-border-strong font-mono text-[11px] font-semibold" style="border-radius: 4px;">
+                            ${escapeHtml(file.category)}
+                          </span>
+                        </td>
+
+                        <td class="table-cell-pad border-r theme-border whitespace-nowrap">
+                          <button 
+                            onclick="openFileHistoryModal('${escapeHtml(file.id)}')"
+                            class="inline-flex items-center gap-1.5 px-2.5 py-1 font-mono text-[11px] font-bold cursor-pointer transition-transform hover:scale-105"
+                            style="background-color: var(--accent-bg); color: var(--accent-fg); border-radius: var(--radius-btn);"
+                            title="Xem lịch sử ${historyCount} phiên bản"
+                          >
+                            <i data-lucide="history" class="w-3 h-3"></i>
+                            <span>${escapeHtml(file.version)}</span>
+                            <span class="opacity-70">(${historyCount})</span>
+                          </button>
+                        </td>
+
+                        <td class="table-cell-pad border-r theme-border whitespace-nowrap">
+                          <div class="inline-flex items-center gap-1.5">
+                            <a 
+                              href="${escapeHtml(file.url)}" 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              class="px-2.5 py-1 btn-secondary font-mono text-[11px] font-medium inline-flex items-center gap-1"
+                            >
+                              <span>Mở Link</span>
+                              <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
+                            </a>
+                            <button 
+                              onclick="copyFileLink('${escapeHtml(file.url)}')"
+                              class="px-2 py-1 btn-secondary font-mono text-[11px] inline-flex items-center gap-1 cursor-pointer"
+                              title="Sao chép đường dẫn"
+                            >
+                              <i data-lucide="copy" class="w-3 h-3"></i>
+                              <span>Copy</span>
+                            </button>
+                          </div>
+                        </td>
+
+                        <td class="table-cell-pad border-r theme-border whitespace-nowrap">
+                          <div class="flex items-center gap-2">
+                            <img 
+                              src="${escapeHtml(updaterAvatar)}" 
+                              onerror="this.onerror=null; this.src='${escapeHtml(updaterFallback)}';"
+                              alt="${escapeHtml(file.updatedBy)}"
+                              class="w-7 h-7 rounded-full object-cover border theme-border shrink-0 ${portraitClass}"
+                            />
+                            <div>
+                              <div class="font-semibold">${escapeHtml(file.updatedBy)}</div>
+                              <div class="font-mono text-[11px] theme-text-muted">${escapeHtml(file.updatedAt)}</div>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td class="table-cell-pad border-r theme-border max-w-xs theme-text-secondary leading-relaxed">
+                          ${escapeHtml(file.notes || '—')}
+                        </td>
+
+                        ${customCols.map(cf => {
+                          const val = file.customValues?.[cf.id] || '—';
+                          const isApproved = val === 'Đã duyệt Master';
+                          return `
+                            <td class="table-cell-pad border-r theme-border whitespace-nowrap">
+                              ${isApproved 
+                                ? `<span class="px-2 py-0.5 font-mono text-[11px] font-semibold" style="background-color: var(--accent-bg); color: var(--accent-fg); border-radius: 4px;">${escapeHtml(val)}</span>`
+                                : `<span class="theme-text-secondary">${escapeHtml(val)}</span>`
+                              }
+                            </td>
+                          `;
+                        }).join('')}
+
+                        <td class="table-cell-pad text-right whitespace-nowrap">
+                          <div class="inline-flex items-center gap-1.5">
+                            ${canEditFile ? `
+                              <button 
+                                onclick="openFileModal('${escapeHtml(file.id)}')"
+                                class="px-3 py-1.5 font-mono text-[11px] font-bold btn-secondary cursor-pointer"
+                              >
+                                Sửa File
+                              </button>
+                            ` : `
+                              <span 
+                                class="px-2.5 py-1.5 font-mono text-[11px] theme-surface theme-text-muted border theme-border cursor-not-allowed inline-flex items-center gap-1"
+                                style="border-radius: var(--radius-btn);"
+                                title="File này đã bị Admin khóa chỉnh sửa"
+                              >
+                                <i data-lucide="lock" class="w-3 h-3"></i>
+                                <span>Đã khóa</span>
+                              </span>
+                            `}
+
+                            ${isAdmin() ? `
+                              <button 
+                                onclick="toggleLockFile('${escapeHtml(file.id)}')"
+                                class="px-2.5 py-1.5 font-mono text-[11px] font-semibold btn-secondary cursor-pointer inline-flex items-center gap-1"
+                                title="${file.locked ? 'Mở khóa cho nhân viên sửa' : 'Khóa file chống chỉnh sửa'}"
+                              >
+                                <i data-lucide="${file.locked ? 'unlock' : 'lock'}" class="w-3 h-3"></i>
+                                <span>${file.locked ? 'Mở khóa' : 'Khóa'}</span>
+                              </button>
+                              <button 
+                                onclick="confirmDeleteFile('${escapeHtml(file.id)}')"
+                                class="px-2.5 py-1.5 font-mono text-[11px] font-semibold btn-secondary cursor-pointer"
+                              >
+                                Xóa
+                              </button>
+                            ` : ''}
+                          </div>
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    /**
+     * =====================================================================
+     * TAB 04: CẤU TRÚC & GIAO DIỆN (CHỈ HIỂN THỊ VỚI ADMIN)
+     * (A) TÙY CHỈNH THƯƠNG HIỆU & GIAO DIỆN WEB
+     * (B) CẤU TRÚC THÔNG TIN HỆ THỐNG (DYNAMIC SCHEMA & DANH MỤC)
+     * =====================================================================
+     */
+    function renderStructureTab() {
+      if (!isAdmin()) {
+        return `
+          <div class="theme-card p-12 text-center">
+            <div class="inline-block font-mono text-xs px-3 py-1 mb-3" style="background-color: var(--accent-bg); color: var(--accent-fg); border-radius: 4px;">
+              ACCESS DENIED // 403
+            </div>
+            <h3 class="text-lg font-extrabold uppercase">Khu vực dành riêng cho Quản trị viên (Admin)</h3>
+            <p class="text-xs theme-text-secondary mt-1">Tài khoản Nhân viên không được phép thay đổi giao diện, thương hiệu hoặc cấu trúc dữ liệu.</p>
+          </div>
+        `;
+      }
+
+      const b = state.branding;
+      const modules = [
+        { key: 'staff', title: '01. Bảng Nhân Sự', desc: 'Cột thông tin mở rộng cho hồ sơ nhân sự' },
+        { key: 'schedule', title: '02. Bảng Lịch Làm Việc', desc: 'Cột thông tin mở rộng cho ca phân công' },
+        { key: 'files', title: '03. Bảng File Sản Xuất', desc: 'Cột thông tin nhân viên điền khi thêm/sửa file' }
+      ];
+
+      const themes = [
+        { id: 'pure-white', name: 'Trắng Tinh Khôi', sub: 'Pure White Editorial', bg: '#FFFFFF', fg: '#09090B', border: '#E4E4E7' },
+        { id: 'warm-alabaster', name: 'Giấy Trắng Dịu Mắt', sub: 'Warm Alabaster Paper', bg: '#FAF9F6', fg: '#1C1917', border: '#E5DFD3' },
+        { id: 'obsidian-dark', name: 'Đen Tuyền Hiện Đại', sub: 'Obsidian Studio Dark', bg: '#09090B', fg: '#FAFAFA', border: '#27272A' }
+      ];
+
+      return `
+        <div class="space-y-8">
+          <!-- ===============================================================
+               PHẦN (A): TÙY CHỈNH THƯƠNG HIỆU & GIAO DIỆN WEB (ADMIN ONLY)
+          ================================================================ -->
+          <section class="theme-card p-5 sm:p-6 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-4 border-b theme-border">
+              <div>
+                <div class="inline-flex items-center gap-2 mb-1">
+                  <span class="px-2 py-0.5 font-mono text-[10px] font-bold" style="background-color: var(--accent-bg); color: var(--accent-fg); border-radius: 4px;">ADMIN EXCLUSIVE</span>
+                  <span class="font-mono text-xs theme-text-muted">BRANDING &amp; APPEARANCE ENGINE</span>
+                </div>
+                <h2 class="text-lg font-extrabold tracking-tight uppercase">A. Tùy Chỉnh Thương Hiệu, Logo &amp; Giao Diện Web</h2>
+                <p class="text-xs theme-text-secondary mt-0.5">
+                  Chỉ tài khoản Admin mới nhìn thấy và chỉnh sửa được khu vực này. Mọi thay đổi áp dụng ngay lập tức cho toàn bộ trang web.
+                </p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <!-- Cột trái: Tên thương hiệu, Tagline & Logo -->
+              <div class="lg:col-span-6 space-y-4">
+                <form onsubmit="handleSaveBrandingText(event)" class="space-y-3.5">
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="sm:col-span-2">
+                      <label class="block text-xs font-semibold mb-1">Tên Thương Hiệu Trang Web *</label>
+                      <input 
+                        type="text" 
+                        name="brandName" 
+                        required 
+                        value="${escapeHtml(b.brandName)}" 
+                        placeholder="VD: NOIR // PRODUCTION"
+                        class="w-full px-3 py-2 text-xs font-bold input-field"
+                      />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-semibold mb-1">Nhãn phiên bản</label>
+                      <input 
+                        type="text" 
+                        name="versionTag" 
+                        value="${escapeHtml(b.versionTag)}" 
+                        placeholder="v3.0"
+                        class="w-full px-3 py-2 text-xs font-mono input-field"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-semibold mb-1">Khẩu hiệu / Dòng mô tả phụ (Tagline)</label>
+                    <input 
+                      type="text" 
+                      name="tagline" 
+                      value="${escapeHtml(b.tagline)}" 
+                      placeholder="Hệ thống Quản lý Nhân sự, Lịch làm việc & Dữ liệu Sản xuất"
+                      class="w-full px-3 py-2 text-xs input-field"
+                    />
+                  </div>
+
+                  <div class="flex justify-end">
+                    <button type="submit" class="px-4 py-2 text-xs font-semibold btn-primary cursor-pointer inline-flex items-center gap-1.5">
+                      <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                      <span>Lưu Tên Thương Hiệu</span>
+                    </button>
+                  </div>
+                </form>
+
+                <!-- Tùy chỉnh Logo: Chọn 6 Icon hình học hoặc Upload Logo từ máy -->
+                <div class="pt-4 border-t theme-border space-y-3">
+                  <div class="flex items-center justify-between">
+                    <label class="block text-xs font-bold uppercase font-mono">Logo Thương Hiệu</label>
+                    <label class="px-3 py-1.5 text-xs font-mono font-semibold btn-secondary cursor-pointer inline-flex items-center gap-1.5">
+                      <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                      <span>Tải ảnh Logo lên</span>
+                      <input type="file" accept="image/*" onchange="handleUploadBrandLogo(event)" class="hidden" />
+                    </label>
+                  </div>
+
+                  ${b.logoType === 'upload' && b.logoImageUrl ? `
+                    <div class="p-3 theme-surface border theme-border flex items-center justify-between gap-3" style="border-radius: var(--radius-btn);">
+                      <div class="flex items-center gap-3">
+                        <img src="${escapeHtml(b.logoImageUrl)}" alt="Logo" class="w-10 h-10 object-cover border theme-border-strong" style="border-radius: var(--radius-btn);" />
+                        <div class="text-xs">
+                          <div class="font-bold">Đang dùng Logo tải lên tùy chỉnh</div>
+                          <div class="theme-text-muted text-[11px]">Bấm chọn biểu tượng bên dưới để quay lại logo vector.</div>
+                        </div>
+                      </div>
+                      <button onclick="setBrandLogoIcon('aperture')" class="px-2.5 py-1 text-[11px] font-mono btn-secondary cursor-pointer">Gỡ ảnh</button>
+                    </div>
+                  ` : ''}
+
+                  <div class="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                    ${LOGO_ICONS.map(item => {
+                      const selected = b.logoType === 'icon' && b.logoIcon === item.id;
+                      return `
+                        <button
+                          type="button"
+                          onclick="setBrandLogoIcon('${item.id}')"
+                          class="p-2.5 border flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all"
+                          style="${
+                            selected
+                              ? 'background-color: var(--accent-bg); color: var(--accent-fg); border-color: var(--accent-bg); border-radius: var(--radius-btn);'
+                              : 'background-color: var(--bg-surface); color: var(--text-primary); border-color: var(--border-subtle); border-radius: var(--radius-btn);'
+                          }"
+                          title="${escapeHtml(item.name)}"
+                        >
+                          <i data-lucide="${item.icon}" class="w-4 h-4"></i>
+                          <span class="font-mono text-[10px] truncate w-full text-center">${escapeHtml(item.id)}</span>
+                        </button>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cột phải: Bảng màu Monochrome, Bo góc, Mật độ & Lọc ảnh đen trắng -->
+              <div class="lg:col-span-6 space-y-4 lg:border-l lg:pl-6 theme-border">
+                <div>
+                  <label class="block text-xs font-bold uppercase font-mono mb-2">1. Bảng Màu Hiển Thị (Monochrome Theme)</label>
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    ${themes.map(th => {
+                      const active = b.theme === th.id;
+                      return `
+                        <button
+                          type="button"
+                          onclick="updateBrandingSetting('theme', '${th.id}', 'Đã đổi bảng màu sang: ${th.name}')"
+                          class="p-3 border text-left transition-all cursor-pointer flex flex-col justify-between gap-2"
+                          style="background-color: ${th.bg}; color: ${th.fg}; border-color: ${active ? th.fg : th.border}; border-width: ${active ? '2px' : '1px'}; border-radius: var(--radius-btn);"
+                        >
+                          <div class="flex items-center justify-between">
+                            <span class="w-4 h-4 rounded-full border" style="background-color: ${th.fg}; border-color: ${th.border};"></span>
+                            ${active ? `<span class="font-mono text-[10px] font-bold px-1.5 py-0.5" style="background-color: ${th.fg}; color: ${th.bg}; border-radius: 3px;">ĐANG DÙNG</span>` : ''}
+                          </div>
+                          <div>
+                            <div class="font-bold text-xs">${th.name}</div>
+                            <div class="font-mono text-[10px] opacity-70">${th.sub}</div>
+                          </div>
+                        </button>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div>
+                    <label class="block text-xs font-bold uppercase font-mono mb-1.5">2. Phong Cách Bo Góc</label>
+                    <div class="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onclick="updateBrandingSetting('corners', 'rounded', 'Đã bật bo góc mềm mại (Rounded)')"
+                        class="px-3 py-2 text-xs font-semibold border cursor-pointer"
+                        style="${b.corners === 'rounded' ? 'background-color: var(--accent-bg); color: var(--accent-fg); border-color: var(--accent-bg); border-radius: 9px;' : 'background-color: var(--bg-surface); border-color: var(--border-subtle); border-radius: 9px;'}"
+                      >
+                        Mềm mại (Rounded)
+                      </button>
+                      <button
+                        type="button"
+                        onclick="updateBrandingSetting('corners', 'sharp', 'Đã bật góc vuông sắc nét (Swiss Sharp)')"
+                        class="px-3 py-2 text-xs font-semibold border cursor-pointer"
+                        style="${b.corners === 'sharp' ? 'background-color: var(--accent-bg); color: var(--accent-fg); border-color: var(--accent-bg); border-radius: 2px;' : 'background-color: var(--bg-surface); border-color: var(--border-subtle); border-radius: 2px;'}"
+                      >
+                        Sắc nét (Sharp)
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label class="block text-xs font-bold uppercase font-mono mb-1.5">3. Mật Độ Bảng Dữ Liệu</label>
+                    <div class="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onclick="updateBrandingSetting('density', 'comfortable', 'Đã chuyển mật độ hiển thị Thoáng rộng')"
+                        class="px-3 py-2 text-xs font-semibold border cursor-pointer"
+                        style="${b.density === 'comfortable' ? 'background-color: var(--accent-bg); color: var(--accent-fg); border-color: var(--accent-bg); border-radius: var(--radius-btn);' : 'background-color: var(--bg-surface); border-color: var(--border-subtle); border-radius: var(--radius-btn);'}"
+                      >
+                        Thoáng rộng
+                      </button>
+                      <button
+                        type="button"
+                        onclick="updateBrandingSetting('density', 'compact', 'Đã chuyển mật độ hiển thị Gọn gàng')"
+                        class="px-3 py-2 text-xs font-semibold border cursor-pointer"
+                        style="${b.density === 'compact' ? 'background-color: var(--accent-bg); color: var(--accent-fg); border-color: var(--accent-bg); border-radius: var(--radius-btn);' : 'background-color: var(--bg-surface); border-color: var(--border-subtle); border-radius: var(--radius-btn);'}"
+                      >
+                        Gọn gàng
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Công tắc lọc ảnh chân dung đen trắng nghệ thuật -->
+                <div class="pt-2">
+                  <label class="flex items-center justify-between p-3 theme-surface border theme-border cursor-pointer" style="border-radius: var(--radius-btn);">
+                    <div>
+                      <div class="text-xs font-bold">Bộ lọc ảnh chân dung nhân sự Đen Trắng (Monochrome Portrait)</div>
+                      <div class="text-[11px] theme-text-secondary">Đồng bộ toàn bộ ảnh chân dung nhân sự theo tông đen trắng nghệ thuật, tự chuyển màu nhẹ khi di chuột.</div>
+                    </div>
+                    <input 
+                      type="checkbox" 
+                      ${b.monoAvatars ? 'checked' : ''} 
+                      onchange="updateBrandingSetting('monoAvatars', this.checked, this.checked ? 'Đã bật bộ lọc ảnh chân dung đen trắng' : 'Đã bật ảnh chân dung màu tự nhiên')"
+                      class="w-4 h-4 accent-zinc-900 cursor-pointer shrink-0 ml-3"
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===============================================================
+               PHẦN (B): CẤU TRÚC THÔNG TIN HỆ THỐNG (DYNAMIC SCHEMA)
+          ================================================================ -->
+          <section class="space-y-4">
+            <div class="pb-2 border-b theme-border">
+              <h2 class="text-lg font-extrabold tracking-tight uppercase">B. Cấu Trúc Trường Dữ Liệu Động &amp; Danh Mục Hệ Thống</h2>
+              <p class="text-xs theme-text-secondary mt-0.5">
+                Thêm hoặc xóa các cột thông tin tùy chỉnh. Biểu mẫu nhập liệu và bảng hiển thị sẽ tự động cập nhật ngay lập tức.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+              ${modules.map(mod => {
+                const fields = state.customFields[mod.key] || [];
+                return `
+                  <div class="theme-card flex flex-col justify-between overflow-hidden">
+                    <div>
+                      <div class="p-4 theme-surface border-b theme-border flex items-start justify-between gap-2">
+                        <div>
+                          <h3 class="font-extrabold text-sm uppercase">${mod.title}</h3>
+                          <p class="text-[11px] theme-text-secondary mt-0.5">${mod.desc}</p>
+                        </div>
+                        <button 
+                          onclick="openQuickCustomFieldModal('${mod.key}')"
+                          class="px-2.5 py-1.5 font-mono text-[11px] font-bold btn-primary shrink-0 cursor-pointer"
+                        >
+                          + Thêm cột
+                        </button>
+                      </div>
+
+                      <div class="p-4 space-y-2.5">
+                        ${fields.length === 0 ? `
+                          <div class="py-8 text-center border border-dashed theme-border text-xs theme-text-muted font-mono" style="border-radius: var(--radius-btn);">
+                            Chưa có trường dữ liệu tùy biến nào.
+                          </div>
+                        ` : fields.map(f => `
+                          <div class="p-3 border theme-border theme-surface flex items-start justify-between gap-2" style="border-radius: var(--radius-btn);">
+                            <div>
+                              <div class="font-bold text-xs flex items-center gap-1.5">
+                                <span>${escapeHtml(f.label)}</span>
+                                ${f.required ? `<span class="font-mono text-[9px] px-1" style="background-color: var(--accent-bg); color: var(--accent-fg); border-radius: 3px;">BẮT BUỘC</span>` : ''}
+                              </div>
+                              <div class="font-mono text-[11px] theme-text-muted mt-1">
+                                Kiểu: ${f.type === 'text' ? 'Văn bản' : f.type === 'date' ? 'Ngày tháng' : 'Danh sách chọn'}
+                                ${f.type === 'select' && f.options?.length ? ` (${f.options.join(', ')})` : ''}
+                              </div>
+                            </div>
+                            <button 
+                              onclick="confirmDeleteCustomField('${mod.key}', '${escapeHtml(f.id)}')"
+                              class="px-2 py-1 font-mono text-[11px] btn-secondary cursor-pointer"
+                            >
+                              Xóa
+                            </button>
+                          </div>
+                        `).join('')}
+                      </div>
+                    </div>
+
+                    <div class="px-4 py-2.5 theme-surface border-t theme-border font-mono text-[11px] theme-text-muted flex justify-between">
+                      <span>SỐ CỘT TÙY BIẾN:</span>
+                      <span class="font-bold" style="color: var(--text-primary);">${fields.length}</span>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+
+            <!-- Danh mục Phân loại File & Dự án -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 pt-2">
+              <div class="theme-card p-5">
+                <div class="flex items-center justify-between border-b theme-border pb-3 mb-4">
+                  <div>
+                    <h3 class="font-extrabold text-sm uppercase">Danh Mục Phân Loại File Sản Xuất</h3>
+                    <p class="text-xs theme-text-secondary mt-0.5">Nhân viên chọn từ danh sách phân loại chuẩn hóa này.</p>
+                  </div>
+                  <span class="font-mono text-xs font-bold px-2 py-0.5 border theme-border" style="border-radius: 4px;">
+                    ${state.fileCategories.length} LOẠI
+                  </span>
+                </div>
+
+                <form onsubmit="handleAddCategory(event)" class="flex gap-2 mb-4">
+                  <input 
+                    type="text" 
+                    id="new-category-input"
+                    required
+                    placeholder="VD: Color Grading LUT, Behind The Scenes..."
+                    class="flex-1 px-3 py-2 text-xs input-field"
+                  />
+                  <button type="submit" class="px-4 py-2 font-mono text-xs font-bold btn-primary cursor-pointer">
+                    + Thêm loại
+                  </button>
+                </form>
+
+                <div class="flex flex-wrap gap-2">
+                  ${state.fileCategories.map((cat, idx) => `
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 border theme-border theme-surface text-xs font-mono" style="border-radius: var(--radius-btn);">
+                      <span class="font-semibold">${escapeHtml(cat)}</span>
+                      ${state.fileCategories.length > 1 ? `
+                        <button onclick="deleteCategory(${idx})" class="theme-text-muted hover:opacity-100 font-bold cursor-pointer" title="Xóa">✕</button>
+                      ` : ''}
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+
+              <div class="theme-card p-5">
+                <div class="flex items-center justify-between border-b theme-border pb-3 mb-4">
+                  <div>
+                    <h3 class="font-extrabold text-sm uppercase">Danh Mục Dự Án Đang Vận Hành</h3>
+                    <p class="text-xs theme-text-secondary mt-0.5">Dùng chung cho phân công lịch làm việc và kho file.</p>
+                  </div>
+                  <span class="font-mono text-xs font-bold px-2 py-0.5 border theme-border" style="border-radius: 4px;">
+                    ${state.projects.length} DỰ ÁN
+                  </span>
+                </div>
+
+                <form onsubmit="handleAddProject(event)" class="flex gap-2 mb-4">
+                  <input 
+                    type="text" 
+                    id="new-project-input"
+                    required
+                    placeholder="VD: PRJ-2605 • MV Ca Nhạc — Nghệ sĩ X..."
+                    class="flex-1 px-3 py-2 text-xs input-field"
+                  />
+                  <button type="submit" class="px-4 py-2 font-mono text-xs font-bold btn-primary cursor-pointer">
+                    + Thêm dự án
+                  </button>
+                </form>
+
+                <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                  ${state.projects.map((prj, idx) => `
+                    <div class="flex items-center justify-between px-3 py-2 border theme-border theme-surface text-xs" style="border-radius: var(--radius-btn);">
+                      <span class="font-mono font-semibold">${escapeHtml(prj)}</span>
+                      ${state.projects.length > 1 ? `
+                        <button onclick="deleteProject(${idx})" class="font-mono text-[11px] px-2 py-0.5 btn-secondary cursor-pointer">Xóa</button>
+                      ` : ''}
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    /**
+     * CÁC HÀM CẬP NHẬT THƯƠNG HIỆU & GIAO DIỆN (ADMIN ONLY)
+     */
+    function handleSaveBrandingText(e) {
+      e.preventDefault();
+      if (!isAdmin()) return;
+      const form = e.target;
+      state.branding.brandName = form.brandName.value.trim() || 'OPS // STUDIO';
+      state.branding.versionTag = form.versionTag.value.trim() || 'v3.0';
+      state.branding.tagline = form.tagline.value.trim();
+      saveState();
+      renderApp();
+      showToast('ĐÃ CẬP NHẬT THƯƠNG HIỆU', `Tên trang web đã đổi thành "${state.branding.brandName}".`);
+    }
+
+    function setBrandLogoIcon(iconName) {
+      if (!isAdmin()) return;
+      state.branding.logoType = 'icon';
+      state.branding.logoIcon = iconName;
+      saveState();
+      renderApp();
+      showToast('ĐÃ ĐỔI LOGO BIỂU TƯỢNG', `Đã áp dụng biểu tượng logo: ${iconName}.`);
+    }
+
+    async function handleUploadBrandLogo(e) {
+      if (!isAdmin()) return;
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const compressed = await compressImageFile(file, 200);
+        state.branding.logoType = 'upload';
+        state.branding.logoImageUrl = compressed;
+        saveState();
+        renderApp();
+        showToast('ĐÃ TẢI LOGO MỚI', 'Logo thương hiệu tùy chỉnh đã được cập nhật lên thanh tiêu đề.');
+      } catch (err) {
+        showToast('LỖI TẢI ẢNH', 'Không thể đọc tệp hình ảnh này. Vui lòng thử ảnh PNG hoặc JPG.');
+      }
+    }
+
+    function updateBrandingSetting(key, value, toastMsg) {
+      if (!isAdmin()) return;
+      state.branding[key] = value;
+      saveState();
+      renderApp();
+      if (toastMsg) showToast('CẬP NHẬT GIAO DIỆN', toastMsg);
+    }
+
+    /**
+     * =====================================================================
+     * MODAL CHI TIẾT HỒ SƠ NHÂN SỰ & LỊCH ĐANG PHỤ TRÁCH
+     * =====================================================================
+     */
+    function openStaffDetailModal(staffId) {
+      const person = state.staff.find(s => s.id === staffId);
+      if (!person) return;
+
+      const avatarUrl = person.avatar || getFallbackAvatarUrl(person.name);
+      const fallbackUrl = getFallbackAvatarUrl(person.name);
+      const portraitClass = state.branding.monoAvatars ? 'portrait-mono' : 'portrait-color';
+      const personSchedules = state.schedules.filter(s => s.staffId === person.id);
+      const customCols = state.customFields.staff;
+
+      openModal(`
+        <div class="p-6 space-y-5">
+          <div class="flex items-start justify-between border-b theme-border pb-4 gap-4">
+            <div class="flex items-center gap-4">
+              <img 
+                src="${escapeHtml(avatarUrl)}" 
+                onerror="this.onerror=null; this.src='${escapeHtml(fallbackUrl)}';"
+                alt="${escapeHtml(person.name)}"
+                class="w-20 h-20 sm:w-24 sm:h-24 object-cover border theme-border-strong shrink-0 ${portraitClass}"
+                style="border-radius: var(--radius-card);"
+              />
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="font-mono text-xs font-bold px-2 py-0.5 theme-surface border theme-border" style="border-radius: 4px;">
+                    ${escapeHtml(person.id)}
+                  </span>
+                  <span class="font-mono text-xs font-semibold px-2.5 py-0.5 pill-badge" style="background-color: var(--accent-bg); color: var(--accent-fg);">
+                    ${escapeHtml(person.status)}
+                  </span>
+                </div>
+                <h3 class="font-extrabold text-lg sm:text-xl mt-1.5">${escapeHtml(person.name)}</h3>
+                <p class="text-xs sm:text-sm theme-text-secondary">${escapeHtml(person.position)} • <strong>${escapeHtml(person.specialty)}</strong></p>
+              </div>
+            </div>
+            <button onclick="closeModal()" class="font-mono text-xs px-2.5 py-1.5 btn-secondary cursor-pointer">✕</button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs theme-surface p-4 border theme-border" style="border-radius: var(--radius-btn);">
+            <div>
+              <span class="font-mono text-[11px] theme-text-muted block">SỐ ĐIỆN THOẠI</span>
+              <span class="font-mono font-bold">${escapeHtml(person.phone)}</span>
+            </div>
+            <div>
+              <span class="font-mono text-[11px] theme-text-muted block">EMAIL CÔNG VIỆC</span>
+              <span class="font-mono font-semibold">${escapeHtml(person.email)}</span>
+            </div>
+            <div class="sm:col-span-2">
+              <span class="font-mono text-[11px] theme-text-muted block">THIẾT BỊ CHUYÊN DỤNG PHỤ TRÁCH</span>
+              <span class="font-semibold">${escapeHtml(person.gear || 'Chưa cập nhật')}</span>
+            </div>
+            ${customCols.map(cf => `
+              <div>
+                <span class="font-mono text-[11px] theme-text-muted block uppercase">${escapeHtml(cf.label)}</span>
+                <span class="font-semibold">${escapeHtml(person.customValues?.[cf.id] || '—')}</span>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Lịch làm việc đang phụ trách -->
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between">
+              <h4 class="font-mono text-xs font-bold uppercase">Lịch phân công hiện tại (${personSchedules.length})</h4>
+            </div>
+            ${personSchedules.length === 0 ? `
+              <div class="p-4 border border-dashed theme-border text-xs theme-text-muted font-mono text-center" style="border-radius: var(--radius-btn);">
+                Hiện chưa có ca làm việc nào được phân công cho nhân sự này.
+              </div>
+            ` : `
+              <div class="space-y-2 max-h-52 overflow-y-auto pr-1">
+                ${personSchedules.map(sch => `
+                  <div class="p-3 border theme-border flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs" style="border-radius: var(--radius-btn);">
+                    <div>
+                      <div class="font-mono text-[11px] font-bold">${escapeHtml(sch.date)} • ${escapeHtml(sch.shift)}</div>
+                      <div class="font-semibold mt-0.5">${escapeHtml(sch.task)}</div>
+                      <div class="text-[11px] theme-text-muted">${escapeHtml(sch.project)} — ${escapeHtml(sch.location)}</div>
+                    </div>
+                    <span class="font-mono text-[11px] px-2 py-0.5 border theme-border-strong self-start sm:self-center shrink-0" style="border-radius: 4px;">
+                      ${escapeHtml(sch.status)}
+                    </span>
+                  </div>
+                `).join('')}
+              </div>
+            `}
+          </div>
+
+          <div class="flex items-center justify-end gap-2 pt-2 border-t theme-border">
+            ${isAdmin() ? `
+              <button onclick="closeModal(); openStaffModal('${escapeHtml(person.id)}');" class="px-4 py-2 text-xs font-semibold btn-primary cursor-pointer">
+                Chỉnh sửa hồ sơ &amp; ảnh
+              </button>
+            ` : ''}
+            <button onclick="closeModal()" class="px-4 py-2 text-xs font-semibold btn-secondary cursor-pointer">Đóng</button>
+          </div>
+        </div>
+      `);
+    }
+
+    /**
+     * =====================================================================
+     * CÁC MODAL CRUD: NHÂN SỰ (CÓ UPLOAD ẢNH), LỊCH LÀM VIỆC, FILE, SCHEMA
+     * =====================================================================
+     */
+    function renderCustomFieldsInputs(moduleKey, existingValues = {}) {
+      const fields = state.customFields[moduleKey] || [];
+      if (fields.length === 0) return '';
+
+      return `
+        <div class="pt-3 border-t border-dashed theme-border space-y-3">
+          <span class="font-mono text-[11px] font-bold uppercase block">
+            Trường thông tin mở rộng (Admin cấu hình)
+          </span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            ${fields.map(cf => {
+              const val = existingValues[cf.id] || '';
+              if (cf.type === 'select') {
+                return `
+                  <div>
+                    <label class="block text-xs font-semibold mb-1">
+                      ${escapeHtml(cf.label)} ${cf.required ? '*' : ''}
+                    </label>
+                    <select 
+                      name="custom_${escapeHtml(cf.id)}" 
+                      ${cf.required ? 'required' : ''}
+                      class="w-full px-3 py-2 text-xs input-field"
+                    >
+                      <option value="">-- Chọn giá trị --</option>
+                      ${(cf.options || []).map(opt => `
+                        <option value="${escapeHtml(opt)}" ${val === opt ? 'selected' : ''}>${escapeHtml(opt)}</option>
+                      `).join('')}
+                    </select>
+                  </div>
+                `;
+              }
+              return `
+                <div>
+                  <label class="block text-xs font-semibold mb-1">
+                    ${escapeHtml(cf.label)} ${cf.required ? '*' : ''}
+                  </label>
+                  <input 
+                    type="${cf.type === 'date' ? 'date' : 'text'}" 
+                    name="custom_${escapeHtml(cf.id)}" 
+                    value="${escapeHtml(val)}"
+                    ${cf.required ? 'required' : ''}
+                    placeholder="Nhập ${escapeHtml(cf.label.toLowerCase())}..."
+                    class="w-full px-3 py-2 text-xs input-field"
+                  />
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function extractCustomValuesFromForm(formElement, moduleKey) {
+      const fields = state.customFields[moduleKey] || [];
+      const result = {};
+      fields.forEach(cf => {
+        const input = formElement.elements[`custom_${cf.id}`];
+        if (input) result[cf.id] = input.value.trim();
+      });
+      return result;
+    }
+
+    // --- MODAL THÊM / SỬA NHÂN SỰ (KÈM TẢI ẢNH TỪ MÁY / URL / CHỌN MẪU) ---
+    function openStaffModal(staffId = null) {
+      if (!isAdmin()) {
+        showToast('TỪ CHỐI QUYỀN', 'Chỉ Admin mới có quyền thêm hoặc chỉnh sửa nhân sự.');
+        return;
+      }
+
+      const person = staffId ? state.staff.find(s => s.id === staffId) : null;
+      const nextId = `NV-${String(state.staff.length + 1).padStart(2, '0')}`;
+      const initialAvatar = person?.avatar || PRESET_PORTRAITS[0].url;
+      const portraitClass = state.branding.monoAvatars ? 'portrait-mono' : 'portrait-color';
+
+      openModal(`
+        <form onsubmit="handleSaveStaff(event, ${person ? `'${escapeHtml(person.id)}'` : 'null'})" class="p-6 space-y-4">
+          <div class="flex items-center justify-between border-b theme-border pb-3">
+            <div>
+              <span class="font-mono text-[10px] px-1.5 py-0.5" style="background-color: var(--accent-bg); color: var(--accent-fg); border-radius: 4px;">ADMIN ACTION</span>
+              <h3 class="font-extrabold text-base uppercase mt-1">
+                ${person ? `Cập Nhật Hồ Sơ Nhân Sự (${escapeHtml(person.id)})` : 'Thêm Nhân Sự Mới'}
+              </h3>
+            </div>
+            <button type="button" onclick="closeModal()" class="font-mono text-xs px-2.5 py-1 btn-secondary cursor-pointer">✕</button>
+          </div>
+
+          <!-- Khu vực Ảnh chân dung nhân viên -->
+          <div class="p-3.5 theme-surface border theme-border flex flex-col sm:flex-row items-center gap-4" style="border-radius: var(--radius-card);">
+            <img 
+              id="staff-avatar-preview" 
+              src="${escapeHtml(initialAvatar)}" 
+              onerror="this.onerror=null; this.src='${escapeHtml(getFallbackAvatarUrl(person ? person.name : 'NV'))}';"
+              alt="Xem trước chân dung" 
+              class="w-24 h-28 object-cover border theme-border-strong shrink-0 ${portraitClass}"
+              style="border-radius: var(--radius-btn);"
+            />
+            <div class="flex-1 w-full space-y-2.5">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="font-mono text-[11px] font-bold uppercase">Ảnh Chân Dung Nhân Sự</span>
+                <label class="px-3 py-1.5 text-xs font-mono font-semibold btn-primary cursor-pointer inline-flex items-center gap-1.5">
+                  <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                  <span>Tải ảnh từ máy tính</span>
+                  <input type="file" accept="image/*" onchange="handleStaffAvatarFileChange(event)" class="hidden" />
+                </label>
+              </div>
+
+              <div>
+                <input 
+                  type="text" 
+                  id="staff-avatar-url-input" 
+                  name="avatar" 
+                  value="${escapeHtml(initialAvatar)}" 
+                  oninput="updateStaffAvatarPreview(this.value)"
+                  placeholder="Hoặc dán đường dẫn URL ảnh chân dung..."
+                  class="w-full px-3 py-1.5 text-xs font-mono input-field"
+                />
+              </div>
+
+              <div>
+                <span class="block font-mono text-[10px] theme-text-muted mb-1">Hoặc chọn nhanh ảnh chân dung mẫu:</span>
+                <div class="flex items-center gap-1.5 overflow-x-auto pb-1">
+                  ${PRESET_PORTRAITS.map((p, i) => `
+                    <button 
+                      type="button" 
+                      onclick="selectPresetPortrait('${escapeHtml(p.url)}')"
+                      class="w-8 h-8 rounded-full overflow-hidden border theme-border-strong shrink-0 hover:scale-110 transition-transform cursor-pointer"
+                      title="${escapeHtml(p.label)}"
+                    >
+                      <img src="${escapeHtml(p.url)}" alt="${escapeHtml(p.label)}" class="w-full h-full object-cover ${portraitClass}" />
+                    </button>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold mb-1">Mã nhân sự *</label>
+              <input type="text" name="id" required value="${escapeHtml(person ? person.id : nextId)}" ${person ? 'readonly class="w-full px-3 py-2 text-xs font-mono theme-surface border theme-border opacity-75" style="border-radius: var(--radius-input);"' : 'class="w-full px-3 py-2 text-xs font-mono input-field"'} />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">Họ và tên *</label>
+              <input type="text" name="name" required value="${escapeHtml(person ? person.name : '')}" placeholder="VD: Nguyễn Văn A" class="w-full px-3 py-2 text-xs input-field" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">Chức danh / Vị trí *</label>
+              <input type="text" name="position" required value="${escapeHtml(person ? person.position : '')}" placeholder="VD: Camera Operator" class="w-full px-3 py-2 text-xs input-field" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">Chuyên môn chính *</label>
+              <select name="specialty" class="w-full px-3 py-2 text-xs input-field">
+                ${['Đạo diễn hình ảnh', 'Quay phim', 'Dựng phim / Colorist', 'Nhiếp ảnh & Thiết kế', 'Âm thanh hiện trường', 'Điều phối sản xuất'].map(sp => `
+                  <option value="${sp}" ${person?.specialty === sp ? 'selected' : ''}>${sp}</option>
+                `).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">Trạng thái hoạt động *</label>
+              <select name="status" class="w-full px-3 py-2 text-xs input-field">
+                ${['Sẵn sàng', 'Đang đi job', 'Nghỉ phép'].map(st => `
+                  <option value="${st}" ${person?.status === st ? 'selected' : ''}>${st}</option>
+                `).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">Số điện thoại *</label>
+              <input type="text" name="phone" required value="${escapeHtml(person ? person.phone : '')}" placeholder="090x xxx xxx" class="w-full px-3 py-2 text-xs font-mono input-field" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">Email công việc *</label>
+              <input type="email" name="email" required value="${escapeHtml(person ? person.email : '')}" placeholder="ten@ops-studio.vn" class="w-full px-3 py-2 text-xs font-mono input-field" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">Thiết bị chuyên dụng phụ trách</label>
+              <input type="text" name="gear" value="${escapeHtml(person ? person.gear : '')}" placeholder="VD: Sony FX6, Gimbal RS4..." class="w-full px-3 py-2 text-xs input-field" />
+            </div>
+          </div>
+
+          ${renderCustomFieldsInputs('staff', person?.customValues || {})}
+
+          <div class="flex items-center justify-end gap-2 pt-3 border-t theme-border">
+            <button type="button" onclick="closeModal()" class="px-4 py-2 text-xs font-semibold btn-secondary cursor-pointer">Hủy</button>
+            <button type="submit" class="px-5 py-2 text-xs font-semibold btn-primary cursor-pointer">
+              ${person ? 'Lưu hồ sơ nhân sự' : 'Tạo nhân sự'}
+            </button>
+          </div>
+        </form>
+      `);
+    }
+
+    async function handleStaffAvatarFileChange(e) {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const compressed = await compressImageFile(file, 320);
+        const urlInput = document.getElementById('staff-avatar-url-input');
+        const previewImg = document.getElementById('staff-avatar-preview');
+        if (urlInput) urlInput.value = compressed;
+        if (previewImg) previewImg.src = compressed;
+        showToast('ĐÃ TẢI ẢNH CHÂN DUNG', 'Ảnh đã được nén và xem trước thành công.');
+      } catch (err) {
+        showToast('LỖI ĐỌC ẢNH', 'Không thể xử lý tệp ảnh đã chọn.');
+      }
+    }
+
+    function updateStaffAvatarPreview(url) {
+      const previewImg = document.getElementById('staff-avatar-preview');
+      if (previewImg && url.trim()) previewImg.src = url.trim();
+    }
+
+    function selectPresetPortrait(url) {
+      const urlInput = document.getElementById('staff-avatar-url-input');
+      const previewImg = document.getElementById('staff-avatar-preview');
+      if (urlInput) urlInput.value = url;
+      if (previewImg) previewImg.src = url;
+    }
+
+    function handleSaveStaff(e, existingId) {
+      e.preventDefault();
+      if (!isAdmin()) return;
+
+      const form = e.target;
+      const customValues = extractCustomValuesFromForm(form, 'staff');
+      const payload = {
+        id: form.id.value.trim(),
+        name: form.name.value.trim(),
+        position: form.position.value.trim(),
+        specialty: form.specialty.value,
+        status: form.status.value,
+        phone: form.phone.value.trim(),
+        email: form.email.value.trim(),
+        gear: form.gear.value.trim(),
+        avatar: form.avatar.value.trim() || PRESET_PORTRAITS[0].url,
+        customValues
+      };
+
+      if (existingId) {
+        const idx = state.staff.findIndex(s => s.id === existingId);
+        if (idx !== -1) state.staff[idx] = payload;
+        showToast('CẬP NHẬT NHÂN SỰ', `Đã lưu hồ sơ và ảnh của ${payload.name}.`);
+      } else {
+        if (state.staff.some(s => s.id === payload.id)) {
+          showToast('TRÙNG MÃ NHÂN SỰ', `Mã ${payload.id} đã tồn tại, vui lòng chọn mã khác.`);
+          return;
+        }
+        state.staff.push(payload);
+        showToast('THÊM NHÂN SỰ MỚI', `Đã thêm ${payload.name} (${payload.id}) vào danh sách.`);
+      }
+
+      saveState();
+      closeModal();
+      renderApp();
+    }
+
+    function confirmDeleteStaff(staffId) {
+      if (!isAdmin()) return;
+      const person = state.staff.find(s => s.id === staffId);
+      if (!person) return;
+
+      openModal(`
+        <div class="p-6">
+          <h3 class="font-extrabold text-base uppercase border-b theme-border pb-3 mb-3">Xóa hồ sơ nhân sự</h3>
+          <p class="text-xs theme-text-secondary leading-relaxed mb-5">
+            Bạn có chắc chắn muốn xóa nhân sự <strong style="color: var(--text-primary);">${escapeHtml(person.name)} (${escapeHtml(person.id)})</strong> khỏi hệ thống?
+          </p>
+          <div class="flex justify-end gap-2">
+            <button onclick="closeModal()" class="px-4 py-2 text-xs font-semibold btn-secondary cursor-pointer">Hủy</button>
+            <button onclick="deleteStaff('${escapeHtml(staffId)}')" class="px-4 py-2 text-xs font-semibold btn-primary cursor-pointer">Xác nhận xóa</button>
+          </div>
+        </div>
+      `, 'max-w-md');
+    }
+
+    function deleteStaff(staffId) {
+      if (!isAdmin()) return;
+      state.staff = state.staff.filter(s => s.id !== staffId);
+      saveState();
+      closeModal();
+      renderApp();
+      showToast('ĐÃ XÓA NHÂN SỰ', `Đã xóa mã nhân sự ${staffId} khỏi hệ thống.`);
+    }
+
+    // --- MODAL LỊCH LÀM VIỆC (ADMIN ONLY) ---
+    function openScheduleModal(scheduleId = null) {
+      if (!isAdmin()) {
+        showToast('TỪ CHỐI QUYỀN', 'Chỉ Admin mới có quyền phân công hoặc chỉnh sửa lịch làm việc.');
+        return;
+      }
+
+      const item = scheduleId ? state.schedules.find(s => s.id === scheduleId) : null;
+
+      openModal(`
+        <form onsubmit="handleSaveSchedule(event, ${item ? `'${escapeHtml(item.id)}'` : 'null'})" class="p-6 space-y-4">
+          <div class="flex items-center justify-between border-b theme-border pb-3">
+            <div>
+              <span class="font-mono text-[10px] px-1.5 py-0.5" style="background-color: var(--accent-bg); color: var(--accent-fg); border-radius: 4px;">ADMIN ACTION</span>
+              <h3 class="font-extrabold text-base uppercase mt-1">
+                ${item ? `Chỉnh Sửa Lịch Phân Công (${escapeHtml(item.id)})` : 'Tạo Lịch Phân Công Mới'}
+              </h3>
+            </div>
+            <button type="button" onclick="closeModal()" class="font-mono text-xs px-2.5 py-1 btn-secondary cursor-pointer">✕</button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold mb-1">Ngày thực hiện *</label>
+              <input type="date" name="date" required value="${escapeHtml(item ? item.date : '2026-11-25')}" class="w-full px-3 py-2 text-xs font-mono input-field" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">Ca làm việc / Khung giờ *</label>
+              <input type="text" name="shift" required value="${escapeHtml(item ? item.shift : 'Ca Sáng (08:00 - 12:00)')}" placeholder="VD: Ca Sáng (08:00 - 12:00)" class="w-full px-3 py-2 text-xs font-mono input-field" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold mb-1">Dự án sản xuất *</label>
+              <select name="project" class="w-full px-3 py-2 text-xs input-field">
+                ${state.projects.map(p => `<option value="${escapeHtml(p)}" ${item?.project === p ? 'selected' : ''}>${escapeHtml(p)}</option>`).join('')}
+              </select>
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold mb-1">Nội dung công việc phân công *</label>
+              <input type="text" name="task" required value="${escapeHtml(item ? item.task : '')}" placeholder="VD: Quay phỏng vấn nhân vật & thu âm hiện trường..." class="w-full px-3 py-2 text-xs input-field" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">Nhân sự phụ trách *</label>
+              <select name="staffId" class="w-full px-3 py-2 text-xs input-field">
+                ${state.staff.map(s => `<option value="${escapeHtml(s.id)}" ${item?.staffId === s.id ? 'selected' : ''}>${escapeHtml(s.name)} (${escapeHtml(s.specialty)})</option>`).join('')}
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold mb-1">Trạng thái ca việc *</label>
+              <select name="status" class="w-full px-3 py-2 text-xs input-field">
+                ${['Sắp diễn ra', 'Đang thực hiện', 'Hoàn thành'].map(st => `<option value="${st}" ${item?.status === st ? 'selected' : ''}>${st}</option>`).join('')}
+              </select>
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold mb-1">Địa điểm thực hiện *</label>
+              <input type="text" name="location" required value="${escapeHtml(item ? item.location : '')}" placeholder="VD: Phim trường S1 hoặc Phòng Dựng A" class="w-full px-3 py-2 text-xs input-field" />
+            </div>
+          </div>
+
+          ${renderCustomFieldsInputs('schedule', item?.customValues || {})}
+
+          <div class="flex items-center justify-end gap-2 pt-3 border-t theme-border">
+            <button type="button" onclick="closeModal()" class="px-4 py-2 text-xs font-semibold btn-secondary cursor-pointer">Hủy</button>
+            <button type="submit" class="px-5 py-2 text-xs font-semibold btn-primary cursor-pointer">
+              ${item ? 'Lưu lịch phân công' : 'Xác nhận phân công'}
+            </button>
+          </div>
+        </form>
+      `);
+    }
+
+    function handleSaveSchedule(e, existingId) {
+      e.preventDefault();
+      if (!isAdmin()) return;
+
+      const form = e.target;
+      const customValues = extractCustomValuesFromForm(form, 'schedule');
+      const payload = {
+        id: existingId || `SCH-${Math.floor(100 + Math.random() * 900)}`,
+        date: form.date.value,
+        shift: form.shift.value.trim(),
+        project: form.project.value,
+        task: form.task.value.trim(),
+        staffId: form.staffId.value,
+        status: form.status.value,
+        location: form.location.value.trim(),
+        customValues
+      };
+
+      if (existingId) {
+        const idx = state.schedules.findIndex(s => s.id === existingId);
+        if (idx !== -1) state.schedules[idx] = payload;
+        showToast('CẬP NHẬT LỊCH LÀM VIỆC', `Đã cập nhật ca sản xuất ${payload.id}.`);
+      } else {
+        state.schedules.unshift(payload);
+        showToast('PHÂN CÔNG LỊCH MỚI', `Đã xếp lịch ngày ${payload.date} cho nhân sự phụ trách.`);
+      }
+
+      saveState();
+      closeModal();
+      renderApp();
+    }
+
+    function confirmDeleteSchedule(scheduleId) {
+      if (!isAdmin()) return;
+      openModal(`
+        <div class="p-6">
+          <h3 class="font-extrabold text-base uppercase border-b theme-border pb-3 mb-3">Xóa lịch phân công</h3>
+          <p class="text-xs theme-text-secondary leading-relaxed mb-5">
+            Bạn có chắc chắn muốn xóa lịch làm việc <strong style="color: var(--text-primary);">${escapeHtml(scheduleId)}</strong> khỏi bảng điều phối?
+          </p>
+          <div class="flex justify-end gap-2">
+            <button onclick="closeModal()" class="px-4 py-2 text-xs font-semibold btn-secondary cursor-pointer">Hủy</button>
+            <button onclick="deleteSchedule('${escapeHtml(scheduleId)}')" class="px-4 py-2 text-xs font-semibold btn-primary cursor-pointer">Xóa lịch</button>
+          </div>
+        </div>
+      `, 'max-w-md');
+    }
+
+    function deleteSchedule(scheduleId) {
+      if (!isAdmin()) return;
+      state.schedules = state.schedules.filter(s => s.id !== scheduleId);
+      saveState();
+      closeModal();
+      renderApp();
+      showToast('ĐÃ XÓA LỊCH', `Đã xóa ca phân công ${scheduleId}.`);
+    }
+
+    // --- MODAL FILE SẢN XUẤT (CẢ ADMIN & NHÂN VIÊN ĐƯỢC THÊM / SỬA FILE MỞ KHÓA) ---
+    function openFileModal(fileId = null) {
+      const file = fileId ? state.files.find(f => f.id === fileId) : null;
+      if (file && file.locked && !isAdmin()) {
+        showToast('FILE ĐÃ BỊ KHÓA', 'File này đã được Admin khóa. Nhân viên không thể chỉnh sửa.');
+        return;
+      }
+
+      const nextFileId = `FILE-${String(state.files.length + 1).padStart(3, '0')}`;
+      const actorName = getCurrentActorName();
+
+      openModal(`
+        <form onsubmit="handleSaveFile(event, ${file ? `'${escapeHtml(file.id)}'` : 'null'})" class="p-6 space-y-4">
+          <div class="flex items-center justify-between border-b theme-border pb-3">
+            <div>
+              <span class="font-mono text-[10px] px-1.5 py-0.5" style="background-color: var(--accent-bg); color: var(--accent-fg); border-radius: 4px;">
+                ${isAdmin() ? 'ADMIN' : 'NHÂN VIÊN: ' + escapeHtml(actorName.toUpperCase())}
+              </span>
+              <h3 class="font-extrabold text-base uppercase mt-1">
+                ${file ? `Cập Nhật / Sửa File Sản Xuất (${escapeHtml(file.id)})` : 'Thêm File Dữ Liệu Sản Xuất Mới'}
+              </h3>
+            </div>
+            <button type="button" onclick="closeModal()" class="font-mono text-xs px-2.5 py-1 btn-secondary cursor-pointer">✕</button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold mb-1">Tên file / gói dữ liệu sản xuất *</label>
+              <input type="text" name="name" required value="${escapeHtml(file ? file.name : '')}" placeholder="VD: VF_Tet2026_Master_ColorGraded.mov" class="w-full px-3 py-2 text-xs font-mono input-field" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold mb-1">Dự án liên quan *</label>
+              <select name="project" class="w-full px-3 py-2 text-xs input-field">
+                ${state.projects.map(p => `<option value="${escapeHtml(p)}" ${file?.project === p ? 'selected' : ''}>${escapeHtml(p)}</option>`).join('')}
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold mb-1">Phân loại File *</label>
+              <select name="category" class="w-full px-3 py-2 text-xs input-field">
+                ${state.fileCategories.map(c => `<option value="${escapeHtml(c)}" ${file?.category === c ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold mb-1">Phiên bản (Version) *</label>
+              <div class="flex gap-1.5">
+                <input type="text" id="file-version-input" name="version" required value="${escapeHtml(file ? file.version : 'v1.0')}" class="w-full px-3 py-2 text-xs font-mono font-bold input-field" />
+                <button type="button" onclick="bumpVersion('minor')" class="px-2.5 py-1.5 font-mono text-[11px] font-bold btn-secondary shrink-0 cursor-pointer" title="Tăng phiên bản phụ (+0.1)">+0.1</button>
+                <button type="button" onclick="bumpVersion('major')" class="px-2.5 py-1.5 font-mono text-[11px] font-bold btn-secondary shrink-0 cursor-pointer" title="Tăng phiên bản chính (+1.0)">+1.0</button>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold mb-1">Người cập nhật (Tự động ghi nhận)</label>
+              <input type="text" readonly value="${escapeHtml(actorName)}" class="w-full px-3 py-2 text-xs font-semibold theme-surface border theme-border theme-text-secondary" style="border-radius: var(--radius-input);" />
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold mb-1">Đường dẫn lưu trữ (Google Drive / NAS / Server Link) *</label>
+              <input type="url" name="url" required value="${escapeHtml(file ? file.url : 'https://drive.google.com/drive/folders/')}" placeholder="https://drive.google.com/..." class="w-full px-3 py-2 text-xs font-mono input-field" />
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold mb-1">Ghi chú thay đổi / Mô tả nội dung file *</label>
+              <textarea name="notes" rows="2" required placeholder="Mô tả chi tiết nội dung file hoặc những điểm vừa chỉnh sửa ở phiên bản này..." class="w-full px-3 py-2 text-xs input-field">${escapeHtml(file ? file.notes : '')}</textarea>
+            </div>
+          </div>
+
+          ${renderCustomFieldsInputs('files', file?.customValues || {})}
+
+          <div class="flex items-center justify-end gap-2 pt-3 border-t theme-border">
+            <button type="button" onclick="closeModal()" class="px-4 py-2 text-xs font-semibold btn-secondary cursor-pointer">Hủy</button>
+            <button type="submit" class="px-5 py-2 text-xs font-semibold btn-primary cursor-pointer">
+              ${file ? 'Lưu phiên bản cập nhật' : `Tạo file (${nextFileId})`}
+            </button>
+          </div>
+        </form>
+      `);
+    }
+
+    function bumpVersion(type) {
+      const input = document.getElementById('file-version-input');
+      if (!input) return;
+      const raw = input.value.trim().replace(/^v/i, '');
+      const parts = raw.split('.');
+      let major = parseInt(parts[0], 10);
+      let minor = parseInt(parts[1] || '0', 10);
+      if (isNaN(major)) major = 1;
+      if (isNaN(minor)) minor = 0;
+
+      if (type === 'major') {
+        major += 1;
+        minor = 0;
+      } else {
+        minor += 1;
+      }
+      input.value = `v${major}.${minor}`;
+    }
+
+    function handleSaveFile(e, existingId) {
+      e.preventDefault();
+      const form = e.target;
+      const customValues = extractCustomValuesFromForm(form, 'files');
+      const actorName = getCurrentActorName();
+      const nowStr = getCurrentTimestamp();
+
+      const version = form.version.value.trim();
+      const url = form.url.value.trim();
+      const notes = form.notes.value.trim();
+
+      if (existingId) {
+        const idx = state.files.findIndex(f => f.id === existingId);
+        if (idx !== -1) {
+          const oldFile = state.files[idx];
+          if (oldFile.locked && !isAdmin()) {
+            showToast('TỪ CHỐI GHI ĐÈ', 'File đã bị Admin khóa chỉnh sửa.');
+            return;
+          }
+          const updatedHistory = [
+            ...(oldFile.history || []),
+            {
+              version,
+              updatedBy: actorName,
+              updatedAt: nowStr,
+              note: notes,
+              url
+            }
+          ];
+
+          state.files[idx] = {
+            ...oldFile,
+            name: form.name.value.trim(),
+            project: form.project.value,
+            category: form.category.value,
+            version,
+            url,
+            updatedBy: actorName,
+            updatedAt: nowStr,
+            notes,
+            customValues,
+            history: updatedHistory
+          };
+          showToast('ĐÃ CẬP NHẬT FILE', `${actorName} đã lưu phiên bản ${version} cho ${existingId}.`);
+        }
+      } else {
+        const newId = `FILE-${String(state.files.length + 1).padStart(3, '0')}`;
+        const newFile = {
+          id: newId,
+          name: form.name.value.trim(),
+          project: form.project.value,
+          category: form.category.value,
+          version,
+          url,
+          updatedBy: actorName,
+          updatedAt: nowStr,
+          locked: false,
+          notes,
+          customValues,
+          history: [
+            {
+              version,
+              updatedBy: actorName,
+              updatedAt: nowStr,
+              note: notes,
+              url
+            }
+          ]
+        };
+        state.files.unshift(newFile);
+        showToast('ĐÃ THÊM FILE MỚI', `${actorName} đã thêm ${newId} (${version}) vào kho sản xuất.`);
+      }
+
+      saveState();
+      closeModal();
+      renderApp();
+    }
+
+    function toggleLockFile(fileId) {
+      if (!isAdmin()) {
+        showToast('TỪ CHỐI QUYỀN', 'Chỉ Admin mới có quyền khóa hoặc mở khóa file.');
+        return;
+      }
+      const idx = state.files.findIndex(f => f.id === fileId);
+      if (idx !== -1) {
+        state.files[idx].locked = !state.files[idx].locked;
+        saveState();
+        renderApp();
+        showToast(
+          state.files[idx].locked ? 'ĐÃ KHÓA FILE' : 'ĐÃ MỞ KHÓA FILE',
+          state.files[idx].locked
+            ? `File ${fileId} đã khóa. Nhân viên chỉ được xem, không thể sửa.`
+            : `File ${fileId} đã mở khóa cho phép nhân viên cập nhật phiên bản.`
+        );
+      }
+    }
+
+    function confirmDeleteFile(fileId) {
+      if (!isAdmin()) {
+        showToast('TỪ CHỐI QUYỀN XÓA', 'Nhân viên không có quyền xóa file dữ liệu sản xuất.');
+        return;
+      }
+
+      const file = state.files.find(f => f.id === fileId);
+      if (!file) return;
+
+      openModal(`
+        <div class="p-6">
+          <h3 class="font-extrabold text-base uppercase border-b theme-border pb-3 mb-3">Xóa file dữ liệu sản xuất</h3>
+          <p class="text-xs theme-text-secondary leading-relaxed mb-5">
+            Bạn có chắc chắn muốn xóa vĩnh viễn file <strong style="color: var(--text-primary);">${escapeHtml(file.name)} (${escapeHtml(file.id)})</strong> cùng toàn bộ lịch sử phiên bản?
+          </p>
+          <div class="flex justify-end gap-2">
+            <button onclick="closeModal()" class="px-4 py-2 text-xs font-semibold btn-secondary cursor-pointer">Hủy</button>
+            <button onclick="deleteFile('${escapeHtml(fileId)}')" class="px-4 py-2 text-xs font-semibold btn-primary cursor-pointer">Xóa file</button>
+          </div>
+        </div>
+      `, 'max-w-md');
+    }
+
+    function deleteFile(fileId) {
+      if (!isAdmin()) return;
+      state.files = state.files.filter(f => f.id !== fileId);
+      saveState();
+      closeModal();
+      renderApp();
+      showToast('ĐÃ XÓA FILE', `Quản trị viên đã xóa ${fileId} khỏi kho dữ liệu.`);
+    }
+
+    function openFileHistoryModal(fileId) {
+      const file = state.files.find(f => f.id === fileId);
+      if (!file) return;
+
+      const historyList = [...(file.history || [])].reverse();
+      const portraitClass = state.branding.monoAvatars ? 'portrait-mono' : 'portrait-color';
+      const canEditFile = isAdmin() || !file.locked;
+
+      openModal(`
+        <div class="p-6 space-y-4">
+          <div class="flex items-start justify-between border-b theme-border pb-3 gap-3">
+            <div>
+              <span class="font-mono text-[10px] px-1.5 py-0.5 border theme-border-strong" style="border-radius: 4px;">VERSION AUDIT TRAIL</span>
+              <h3 class="font-extrabold text-sm sm:text-base font-mono mt-1.5 break-all">${escapeHtml(file.name)}</h3>
+              <p class="text-xs theme-text-muted mt-0.5">${escapeHtml(file.project)}</p>
+            </div>
+            <button onclick="closeModal()" class="font-mono text-xs px-2.5 py-1 btn-secondary cursor-pointer">✕</button>
+          </div>
+
+          <div class="space-y-3 max-h-96 overflow-y-auto pr-1">
+            ${historyList.map((h, i) => {
+              const actorStaff = getStaffByName(h.updatedBy);
+              const actorAvatar = actorStaff ? (actorStaff.avatar || getFallbackAvatarUrl(h.updatedBy)) : getFallbackAvatarUrl(h.updatedBy);
+              return `
+                <div class="p-3.5 border ${i === 0 ? 'theme-border-strong theme-surface' : 'theme-border'}" style="border-radius: var(--radius-btn);">
+                  <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                    <div class="flex items-center gap-2">
+                      <span class="font-mono text-xs font-bold px-2 py-0.5" style="${i === 0 ? 'background-color: var(--accent-bg); color: var(--accent-fg);' : 'background-color: var(--bg-surface); border: 1px solid var(--border-subtle);'} border-radius: 4px;">
+                        ${escapeHtml(h.version)}
+                      </span>
+                      <img src="${escapeHtml(actorAvatar)}" onerror="this.onerror=null; this.src='${escapeHtml(getFallbackAvatarUrl(h.updatedBy))}';" alt="" class="w-5 h-5 rounded-full object-cover ${portraitClass}" />
+                      <span class="text-xs font-bold">${escapeHtml(h.updatedBy)}</span>
+                      ${i === 0 ? `<span class="font-mono text-[10px] underline">HIỆN TẠI</span>` : ''}
+                    </div>
+                    <span class="font-mono text-[11px] theme-text-muted">${escapeHtml(h.updatedAt)}</span>
+                  </div>
+                  <p class="text-xs theme-text-secondary leading-relaxed mb-2">${escapeHtml(h.note)}</p>
+                  <a href="${escapeHtml(h.url)}" target="_blank" rel="noopener noreferrer" class="font-mono text-[11px] underline hover:opacity-80 break-all">
+                    ${escapeHtml(h.url)} ↗
+                  </a>
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+          <div class="flex justify-end gap-2 pt-2 border-t theme-border">
+            ${canEditFile ? `
+              <button onclick="closeModal(); openFileModal('${escapeHtml(file.id)}');" class="px-4 py-2 text-xs font-semibold btn-primary cursor-pointer">
+                + Cập nhật phiên bản mới
+              </button>
+            ` : ''}
+            <button onclick="closeModal()" class="px-4 py-2 text-xs font-semibold btn-secondary cursor-pointer">Đóng</button>
+          </div>
+        </div>
+      `);
+    }
+
+    function copyFileLink(url) {
+      const tempInput = document.createElement('input');
+      tempInput.value = url;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try {
+        document.execCommand('copy');
+        showToast('ĐÃ SAO CHÉP LINK', 'Đường dẫn lưu trữ file đã được sao chép vào bộ nhớ tạm.');
+      } catch (err) {
+        showToast('KHÔNG THỂ SAO CHÉP', 'Vui lòng mở trực tiếp đường dẫn từ bảng.');
+      }
+      document.body.removeChild(tempInput);
+    }
+
+    // --- MODAL THÊM TRƯỜNG DỮ LIỆU ĐỘNG (DYNAMIC SCHEMA — ADMIN ONLY) ---
+    function openQuickCustomFieldModal(defaultModule = 'files') {
+      if (!isAdmin()) {
+        showToast('TỪ CHỐI QUYỀN', 'Chỉ Admin mới có quyền thay đổi cấu trúc trường dữ liệu.');
+        return;
+      }
+
+      openModal(`
+        <form onsubmit="handleSaveCustomField(event)" class="p-6 space-y-4">
+          <div class="flex items-center justify-between border-b theme-border pb-3">
+            <div>
+              <span class="font-mono text-[10px] px-1.5 py-0.5" style="background-color: var(--accent-bg); color: var(--accent-fg); border-radius: 4px;">SCHEMA BUILDER</span>
+              <h3 class="font-extrabold text-base uppercase mt-1">Thêm Trường Dữ Liệu Tùy Biến Mới</h3>
+            </div>
+            <button type="button" onclick="closeModal()" class="font-mono text-xs px-2.5 py-1 btn-secondary cursor-pointer">✕</button>
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-semibold mb-1">Áp dụng cho phân hệ *</label>
+              <select name="moduleKey" class="w-full px-3 py-2 text-xs font-semibold input-field">
+                <option value="staff" ${defaultModule === 'staff' ? 'selected' : ''}>01. Bảng Nhân Sự</option>
+                <option value="schedule" ${defaultModule === 'schedule' ? 'selected' : ''}>02. Bảng Lịch Làm Việc</option>
+                <option value="files" ${defaultModule === 'files' ? 'selected' : ''}>03. Bảng File Dữ Liệu Sản Xuất</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold mb-1">Tên cột / Trường thông tin mới *</label>
+              <input type="text" name="label" required placeholder="VD: Deadline bàn giao, Mã ổ cứng, Định mức..." class="w-full px-3 py-2 text-xs input-field" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold mb-1">Kiểu dữ liệu nhập *</label>
+              <select name="type" onchange="toggleSelectOptionsInput(this.value)" class="w-full px-3 py-2 text-xs input-field">
+                <option value="text">Văn bản ngắn / Số liệu</option>
+                <option value="date">Ngày tháng (Date Picker)</option>
+                <option value="select">Danh sách lựa chọn (Dropdown Select)</option>
+              </select>
+            </div>
+
+            <div id="custom-field-options-box" class="hidden">
+              <label class="block text-xs font-semibold mb-1">Các giá trị lựa chọn (Phân cách bằng dấu phẩy) *</label>
+              <input type="text" name="options" placeholder="VD: Ưu tiên cao, Bình thường, Thấp" class="w-full px-3 py-2 text-xs input-field" />
+            </div>
+
+            <label class="inline-flex items-center gap-2 text-xs cursor-pointer pt-1">
+              <input type="checkbox" name="required" class="w-4 h-4 accent-zinc-900" />
+              <span>Bắt buộc nhập trường thông tin này trên biểu mẫu</span>
+            </label>
+          </div>
+
+          <div class="flex items-center justify-end gap-2 pt-3 border-t theme-border">
+            <button type="button" onclick="closeModal()" class="px-4 py-2 text-xs font-semibold btn-secondary cursor-pointer">Hủy</button>
+            <button type="submit" class="px-5 py-2 text-xs font-semibold btn-primary cursor-pointer">
+              + Thêm vào cấu trúc bảng
+            </button>
+          </div>
+        </form>
+      `, 'max-w-md');
+    }
+
+    function toggleSelectOptionsInput(typeVal) {
+      const box = document.getElementById('custom-field-options-box');
+      if (!box) return;
+      if (typeVal === 'select') box.classList.remove('hidden');
+      else box.classList.add('hidden');
+    }
+
+    function handleSaveCustomField(e) {
+      e.preventDefault();
+      if (!isAdmin()) return;
+
+      const form = e.target;
+      const moduleKey = form.moduleKey.value;
+      const label = form.label.value.trim();
+      const type = form.type.value;
+      const required = form.required.checked;
+      const rawOptions = form.options ? form.options.value : '';
+      const options = type === 'select'
+        ? rawOptions.split(',').map(s => s.trim()).filter(Boolean)
+        : [];
+
+      if (type === 'select' && options.length === 0) {
+        showToast('THIẾU GIÁ TRỊ CHỌN', 'Vui lòng nhập ít nhất 1 lựa chọn phân cách bằng dấu phẩy.');
+        return;
+      }
+
+      state.customFields[moduleKey].push({
+        id: `cf_${moduleKey}_${Date.now()}`,
+        label,
+        type,
+        options,
+        required
+      });
+      saveState();
+      closeModal();
+      renderApp();
+      showToast('ĐÃ CẬP NHẬT CẤU TRÚC', `Đã thêm cột "${label}" vào bảng dữ liệu tương ứng.`);
+    }
+
+    function confirmDeleteCustomField(moduleKey, fieldId) {
+      if (!isAdmin()) return;
+      const field = state.customFields[moduleKey]?.find(f => f.id === fieldId);
+      if (!field) return;
+
+      openModal(`
+        <div class="p-6">
+          <h3 class="font-extrabold text-base uppercase border-b theme-border pb-3 mb-3">Xóa trường dữ liệu khỏi cấu trúc</h3>
+          <p class="text-xs theme-text-secondary leading-relaxed mb-5">
+            Bạn có chắc chắn muốn xóa cột <strong style="color: var(--text-primary);">"${escapeHtml(field.label)}"</strong>? Cột này sẽ biến mất khỏi bảng dữ liệu và biểu mẫu nhập liệu.
+          </p>
+          <div class="flex justify-end gap-2">
+            <button onclick="closeModal()" class="px-4 py-2 text-xs font-semibold btn-secondary cursor-pointer">Hủy</button>
+            <button onclick="deleteCustomField('${escapeHtml(moduleKey)}', '${escapeHtml(fieldId)}')" class="px-4 py-2 text-xs font-semibold btn-primary cursor-pointer">Xóa cột</button>
+          </div>
+        </div>
+      `, 'max-w-md');
+    }
+
+    function deleteCustomField(moduleKey, fieldId) {
+      if (!isAdmin()) return;
+      state.customFields[moduleKey] = state.customFields[moduleKey].filter(f => f.id !== fieldId);
+      saveState();
+      closeModal();
+      renderApp();
+      showToast('ĐÃ XÓA TRƯỜNG DỮ LIỆU', 'Cấu trúc bảng đã được cập nhật.');
+    }
+
+    // --- QUẢN LÝ DANH MỤC FILE & DỰ ÁN (ADMIN ONLY) ---
+    function handleAddCategory(e) {
+      e.preventDefault();
+      if (!isAdmin()) return;
+      const input = document.getElementById('new-category-input');
+      const val = input.value.trim();
+      if (!val) return;
+      if (state.fileCategories.includes(val)) {
+        showToast('DANH MỤC ĐÃ TỒN TẠI', `Phân loại "${val}" đã có trong danh sách.`);
+        return;
+      }
+      state.fileCategories.push(val);
+      saveState();
+      renderApp();
+      showToast('THÊM PHÂN LOẠI FILE', `Đã bổ sung danh mục "${val}".`);
+    }
+
+    function deleteCategory(idx) {
+      if (!isAdmin() || state.fileCategories.length <= 1) return;
+      const removed = state.fileCategories.splice(idx, 1)[0];
+      saveState();
+      renderApp();
+      showToast('ĐÃ XÓA PHÂN LOẠI', `Đã gỡ bỏ danh mục "${removed}".`);
+    }
+
+    function handleAddProject(e) {
+      e.preventDefault();
+      if (!isAdmin()) return;
+      const input = document.getElementById('new-project-input');
+      const val = input.value.trim();
+      if (!val) return;
+      if (state.projects.includes(val)) {
+        showToast('DỰ ÁN ĐÃ TỒN TẠI', 'Mã/tên dự án này đã có trong hệ thống.');
+        return;
+      }
+      state.projects.push(val);
+      saveState();
+      renderApp();
+      showToast('THÊM DỰ ÁN MỚI', `Đã thêm dự án "${val}".`);
+    }
+
+    function deleteProject(idx) {
+      if (!isAdmin() || state.projects.length <= 1) return;
+      const removed = state.projects.splice(idx, 1)[0];
+      saveState();
+      renderApp();
+      showToast('ĐÃ XÓA DỰ ÁN', `Đã xóa "${removed}" khỏi danh sách vận hành.`);
+    }
+
+    /**
+     * RENDER TỔNG THỂ & KHỞI TẠO LUCIDE ICONS
+     */
+    function renderWorkspaceOnly() {
+      const container = document.getElementById('workspace-container');
+      // Kích hoạt lại animation chuyển tab mượt mà
+      container.classList.remove('animate-tab');
+      void container.offsetWidth;
+      container.classList.add('animate-tab');
+
+      if (state.activeTab === 'staff') {
+        container.innerHTML = renderStaffTab();
+      } else if (state.activeTab === 'schedule') {
+        container.innerHTML = renderScheduleTab();
+      } else if (state.activeTab === 'files') {
+        container.innerHTML = renderFilesTab();
+      } else if (state.activeTab === 'structure') {
+        container.innerHTML = renderStructureTab();
+      }
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function renderApp() {
+      applyThemeAttributes();
+      renderHeaderControls();
+      renderKPIs();
+      renderTabs();
+      renderWorkspaceOnly();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderApp();
+    });
+  </script>
+</body>
+</html>
